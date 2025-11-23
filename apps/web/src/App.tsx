@@ -2,6 +2,6 @@ import { Board } from "@repo/ui/board";
 
 export const App = () => {
   return <div>
-    <Board />
+    <Board rows={8} cols={8} />
   </div>
 }

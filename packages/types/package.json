@@ -1,0 +1,12 @@
+{
+  "name": "@repo/types",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./square": "./src/square.ts",
+    "./board": "./src/board.ts"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2"
+  }
+}
