@@ -5,7 +5,8 @@
   "exports": {
     "./square": "./src/square.ts",
     "./board": "./src/board.ts",
-    "./game": "./src/game.ts"
+    "./game": "./src/game.ts",
+    "./statusCode": "./src/statusCode.ts"
   },
   "devDependencies": {
     "typescript": "5.9.2"
