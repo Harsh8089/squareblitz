@@ -2,7 +2,7 @@ import type { WebSocket } from "ws";
 import { SquareType } from "@repo/types/square";
 import { Game } from "@repo/types/game";
 
-const MAX_ROW_LENGTH = 16;
+const MAX_ROW_LENGTH = 8;
 
 const ROWS = Array.from(
   { length: MAX_ROW_LENGTH }, (_, r) => String.fromCharCode(r + 97)
