@@ -1,52 +1,56 @@
 import { BoardType } from "@repo/types/board";
-import { FC } from "react";
+import { SquareType } from "@repo/types/square";
+import { FC, useMemo, useState } from "react";
+import { 
+  getTarget, 
+  isSameSquare, 
+  mapSizeToPx 
+} from "./utils";
+import { BoardSquare } from "./boardSquare";
+import { TargetOverlay } from "./targetOverlay";
 
-export const Board: FC<BoardType> = ({
-  target,
-  rows,
-  cols
-}) => {
-  return <>
-    {Array.from({ length: rows }, (_, rowIdx) => (
-      <div key={rowIdx} className="flex">
-        {Array.from({ length: cols }, (_, colIdx) => {
-          const isDarkSquare = (rowIdx + colIdx) % 2 === 1;
-                  
-          return <BoardSquare 
-            key={`${rowIdx}${colIdx}`}
-            lastRow={rowIdx === rows - 1 ? colIdx + 1 : undefined}
-            lastCol={colIdx === cols - 1 ? rowIdx + 1 : undefined}
-            isDarkSquare={isDarkSquare} 
-          />
-        })}
+export const Board: FC<BoardType> = ({ size }) => {
+  const [currentTarget, setCurrentTarget] = useState<SquareType>(
+    () => getTarget(size)
+  );
+  const [score, setScore] = useState({ correct: 0, total: 0 });
+
+  const handleSquareClick = (square: SquareType) => {
+    const isCorrect = isSameSquare(currentTarget, square);
+    
+    setScore(prev => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      total: prev.total + 1
+    }));
+    
+    if (isCorrect) {
+      setCurrentTarget(getTarget(size));
+    }
+  };
+
+  const squareSizePx = useMemo(() => mapSizeToPx(size), [size]);
+
+  return (
+    <div className="flex flex-col items-center gap-6 p-8">
+      <div className="relative shadow-2xl">
+        <div className="relative">
+          {Array.from({ length: size }, (_, row) => (
+            <div key={row} className="flex">
+              {Array.from({ length: size }, (_, col) => (
+                <BoardSquare
+                  key={`${row}-${col}`}
+                  size={size}
+                  row={row}
+                  col={col}
+                  sizePx={squareSizePx}
+                  onSquareClick={handleSquareClick}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+        <TargetOverlay currentTarget={currentTarget} />
       </div>
-    ))}
-  </>
-}
-
-const BoardSquare = ({ 
-  lastRow,
-  lastCol,
-  isDarkSquare 
-}: { 
-  lastRow?: number,
-  lastCol?: number,
-  isDarkSquare: boolean 
-}) => {
-  return <div
-    className={`${isDarkSquare ? "bg-black" : "bg-white"} w-[80px] h-[80px] relative`}
-  >
-    {lastRow && <p
-      className="absolute left-0 bottom-0 pl-0.5"
-    >
-      {ROWS[lastRow - 1]}
-    </p>}
-    {lastCol && <p
-      className="absolute right-0 top-0 pr-0.5"
-    >
-      {lastCol}
-    </p>}
-  </div>;
-}
-
-const ROWS = Array.from({ length: 16 }, (_, r) => String.fromCharCode(r + 97));
+    </div>
+  );
+};

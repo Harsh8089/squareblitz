@@ -1,3 +1,25 @@
 @import "tailwindcss";
 
 @config "../tailwind.config.ts";
+
+@theme {
+  /* Brown Palette */
+  --color-brown-1: #3a1d1d;
+  --color-brown-2: #703b3b;
+  --color-brown-3: #af5f5f;
+  
+  /* Grain Brown */
+  --color-grain-1: #bba888;
+  --color-grain-2: #e1d0b3;
+  --color-grain-3: #eae1d3;
+  
+  /* Glass */
+  --color-glass-gull-gray-1: #7f949e;
+  --color-glass-gull-gray-2: #c9d7de;
+  
+  /* Spacing */
+  --spacing-board-gap: 1.5rem;
+  
+  /* Shadows */
+  --shadow-board: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}

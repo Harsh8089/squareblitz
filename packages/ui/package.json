@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./board": "./src/board.tsx"
+    "./board": "./src/board.tsx",
+    "./timer": "./src/timer.tsx"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",

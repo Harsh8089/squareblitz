@@ -1,7 +1,8 @@
-import { Board } from "@repo/ui/board";
+import { FC } from "react";
+import { Game } from "./components";
 
-export const App = () => {
-  return <div>
-    <Board rows={8} cols={8} />
+export const App: FC = () => {
+  return <div className="w-screen h-screen flex justify-center items-center font-mono">
+    <Game />
   </div>
 }
