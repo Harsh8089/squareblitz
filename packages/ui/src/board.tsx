@@ -1,8 +1,6 @@
 import { BoardType } from "@repo/types/board";
 import { FC } from "react";
 
-import "./styles.css";
-
 export const Board: FC<BoardType> = ({
   target,
   rows,
