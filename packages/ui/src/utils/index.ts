@@ -11,7 +11,7 @@ const isSameSquare = (a: SquareType, b: SquareType): boolean =>
   a.file === b.file && a.rank === b.rank;
 
 const mapSizeToPx = (size: number): number => 
-  120 - ((size - 4) * 35) / 6;
+  135 - ((size - 4) * 40) / 6;
 
 export {
   FILES,

@@ -23,15 +23,13 @@ export const Board: FC<BoardType> = ({ size }) => {
       total: prev.total + 1
     }));
     
-    if (isCorrect) {
-      setCurrentTarget(getTarget(size));
-    }
+    setCurrentTarget(getTarget(size));
   };
 
   const squareSizePx = useMemo(() => mapSizeToPx(size), [size]);
 
   return (
-    <div className="flex flex-col items-center gap-6 p-8">
+    <div className="flex flex-col items-center gap-6 pb-3">
       <div className="relative shadow-2xl">
         <div className="relative">
           {Array.from({ length: size }, (_, row) => (

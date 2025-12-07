@@ -30,7 +30,7 @@ export const Timer: FC<Prop> = ({
 
   const progressPercentage = (timeRemaining / endTime) * 100;
 
-  return <div className="space-y-2"
+  return <div
     style={{
       width: squareSizePx
     }}
@@ -47,8 +47,5 @@ export const Timer: FC<Prop> = ({
         style={{ width: `${Math.max(0, progressPercentage)}%` }}
       />
     </div>
-    <p className="text-center text-brown-3 text-lg font-semibold">
-      {Math.max(0, timeRemaining).toFixed(1)}s
-    </p>
   </div>
 }

@@ -47,7 +47,7 @@ export const BoardSquare: FC<Props> = ({
     >
       {isLastRow && (
         <span className={`
-          absolute left-1 bottom-0.5 text-xs font-medium
+          absolute left-1 bottom-0.5 text-lg font-medium
           ${isDark ? 'text-grain-1' : 'text-brown-1'}
         `}>
           {file}
@@ -55,7 +55,7 @@ export const BoardSquare: FC<Props> = ({
       )}
       {isLastCol && (
         <span className={`
-          absolute right-1 top-0.5 text-xs font-medium
+          absolute right-1 top-0.5 text-lg font-medium
           ${isDark ? 'text-grain-1' : 'text-brown-1'}
         `}>
           {rank}
