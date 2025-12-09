@@ -6,7 +6,7 @@ import {
 import { FC } from "react";
 import { 
   FILES 
-} from "./utils";
+} from "../../../apps/web/src/utils";
 
 type Props = {
   size: number;
@@ -41,13 +41,17 @@ export const BoardSquare: FC<Props> = ({
           ? 'bg-brown-2 hover:bg-brown-1 active:bg-brown-2' 
           : 'bg-grain-2 hover:bg-grain-1 active:bg-grain-3'
         }
+        ${(row === 0 && col === 0) && "rounded-tl-2xl"}
+        ${(row === size - 1 && col === 0) && "rounded-bl-2xl"}
+        ${(row === size - 1 && col === size - 1) && "rounded-br-2xl"}
+        ${(row === 0 && col === size - 1) && "rounded-tr-2xl"}
       `}
       style={{ width: sizePx, height: sizePx }}
       aria-label={`Square ${file}${rank}`}
     >
       {isLastRow && (
         <span className={`
-          absolute left-1 bottom-0.5 text-lg font-medium
+          absolute left-1 bottom-0.5 text-2xl font-medium
           ${isDark ? 'text-grain-1' : 'text-brown-1'}
         `}>
           {file}
@@ -55,7 +59,7 @@ export const BoardSquare: FC<Props> = ({
       )}
       {isLastCol && (
         <span className={`
-          absolute right-1 top-0.5 text-lg font-medium
+          absolute right-1 top-0.5 text-2xl font-medium
           ${isDark ? 'text-grain-1' : 'text-brown-1'}
         `}>
           {rank}

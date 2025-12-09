@@ -1,11 +1,11 @@
 import { SquareType } from "@repo/types/square";
 import { FC } from "react";
 
-type Props = {
+type Prop = {
   currentTarget: SquareType
 };
 
-export const TargetOverlay: FC<Props> = ({
+export const TargetOverlay: FC<Prop> = ({
   currentTarget
 }) => <div className="absolute inset-0 flex items-center justify-center 
     pointer-events-none"

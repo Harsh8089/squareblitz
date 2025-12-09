@@ -1,18 +1,14 @@
-import { FC, useEffect, useMemo, useState } from "react";
-import { mapSizeToPx } from "./utils";
+import { FC, useEffect, useState } from "react"
+import { formatTime } from "../../../apps/web/src/utils";
 
 type Prop = {
   endTime: 15 | 30 | 60,
-  size: number,
 }
 
 export const Timer: FC<Prop> = ({
-  endTime,
-  size
+  endTime
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<number>(endTime);
-
-  const squareSizePx = useMemo(() => mapSizeToPx(size) * size, [size]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,24 +24,10 @@ export const Timer: FC<Prop> = ({
     }
   });
 
-  const progressPercentage = (timeRemaining / endTime) * 100;
-
-  return <div
-    style={{
-      width: squareSizePx
-    }}
-  >
-    <div className="h-4 bg-brown-1 rounded-full overflow-hidden shadow-sm">
-      <div
-        className={`h-full transition-all duration-300 ${
-          progressPercentage > 50
-            ? 'bg-grain-2'
-            : progressPercentage > 25
-            ? 'bg-grain-1'
-            : 'bg-brown-3'
-        }`}
-        style={{ width: `${Math.max(0, progressPercentage)}%` }}
-      />
-    </div>
+  return <div className="bg-brown-1 w-full h-32 flex justify-center items-center">
+    <p className="text-grain-3 font-md text-4xl">
+      {formatTime(timeRemaining)}
+    </p>
   </div>
 }
+  

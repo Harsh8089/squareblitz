@@ -1,28 +1,26 @@
 import { BoardSize } from "@repo/types/board";
-
-export type Timer = '15' | '30' | '60';
-
-export enum GameMode {
-  ASSISTED = "assisted",   // Highlights rank + file + flashes square
-  BLIND = "blind",         // Only shows rank + file, no square highlight
-};
-
-export type Game = {
-  mode: GameMode;
-  timer: Timer;
-  size: BoardSize;
-  correct: 0;
-  total: 0;
-  timeTaken: number[];
-};
+import { 
+  GameMode, 
+  GameStatus, 
+  Timer
+} from "@repo/types/game";
+import { SquareType } from "@repo/types/square";
 
 export type Filter = {
   mode?: GameMode;
   timer?: Timer;
 }
 
+export type StartState = {
+  endTime: Timer,
+  mode: GameMode, 
+  size: BoardSize
+}
+
 export type GameContextType = {
-  setHistory: (g: Game) => Game | undefined;
-  getHistory: (f?: Filter) => Game[];
+  start: (s: StartState) => void;
+  end: () => boolean;
+  handleSquareClick: 
+    (timeTaken: number, t: SquareType) => boolean;
 };
 

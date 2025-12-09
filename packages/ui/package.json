@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     "./board": "./src/board.tsx",
+    "./timerBar": "./src/timerBar.tsx",
     "./timer": "./src/timer.tsx"
   },
   "devDependencies": {

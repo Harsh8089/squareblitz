@@ -6,7 +6,8 @@
     "./square": "./src/square.ts",
     "./board": "./src/board.ts",
     "./game": "./src/game.ts",
-    "./statusCode": "./src/statusCode.ts"
+    "./statusCode": "./src/statusCode.ts",
+    "./user": "./src/user.ts"
   },
   "devDependencies": {
     "typescript": "5.9.2"

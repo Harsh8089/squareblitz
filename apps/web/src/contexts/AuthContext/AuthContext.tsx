@@ -6,7 +6,8 @@ import {
   useEffect, 
   useState 
 } from "react";
-import { AuthContextType, User } from "./authContextType";
+import { AuthContextType } from "./authContextType";
+import { User } from "@repo/types/user";
 
 type Prop = {
   children: ReactNode;

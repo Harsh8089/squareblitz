@@ -1,5 +1,20 @@
-import { createContext, FC, ReactNode, useEffect, useState } from "react";
-import { Filter, Game, GameContextType } from "./gameContextType";
+import { 
+  createContext, 
+  FC, 
+  ReactNode, 
+  useContext, 
+  useRef, 
+  useState 
+} from "react";
+import { GameContextType, StartState } from "./gameContextType";
+import { BoardSize } from "@repo/types/board";
+import { 
+  GameMode,
+  GameState, 
+  GameStatus, 
+  Timer
+} from "@repo/types/game";
+import { SquareType } from "@repo/types/square";
 
 type Prop = {
   children: ReactNode;
@@ -8,28 +23,29 @@ type Prop = {
 const GameContext = createContext<GameContextType | undefined>(undefined); 
 
 export const GameProvider: FC<Prop> = ({ children }) => {
-  const [games, setGames] = useState<Game[]>([]);
+  const gameState = useRef<GameState>(undefined);
 
-  const setHistory = (g: Game): Game => {    
-    setGames(prev => [...prev, g]);
-    return g;
+  const start = (state: StartState) => {
+    // make api call to start
   }
 
-  const getHistory = (f?: Filter): Game[] => {
-    if(!f || !games.length) {
-      return [];
-    }
-
-    return games.filter(g => 
-      (f.mode && f.mode === g.mode) || (f.timer && f.timer === g.timer)
-    );
+  const end = (): boolean => {
+    // make api call to save game 
+    return true;
   }
 
-  useEffect(() => {
-    // add fetch call to set games in case user refresh page / login again.
-  }, []);
+  const handleSquareClick = (
+    timeTaken: number, 
+    target: SquareType
+  ): boolean => {
+    // api call to BE to verify 
 
-  return <GameContext.Provider value={{ setHistory, getHistory }}>
+    return true; 
+  }
+
+  return <GameContext.Provider value={{ start, end, handleSquareClick }}>
     { children }
   </GameContext.Provider>
 }
+
+export const useGame = () => useContext(GameContext);
