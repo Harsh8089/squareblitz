@@ -6,11 +6,9 @@ import './styles.css';
 import { AuthProvider, GameProvider } from "./contexts";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <GameProvider>
-        <App />
-      </GameProvider>
-    </AuthProvider>
-  </React.StrictMode>,
+  <AuthProvider>
+    <GameProvider>
+      <App />
+    </GameProvider>
+  </AuthProvider>
 )

@@ -2,19 +2,15 @@ import {
   createContext, 
   FC, 
   ReactNode, 
-  useContext, 
-  useRef, 
-  useState 
+  useContext,
 } from "react";
-import { GameContextType, StartState } from "./gameContextType";
-import { BoardSize } from "@repo/types/board";
+import axios from "axios";
 import { 
-  GameMode,
-  GameState, 
-  GameStatus, 
-  Timer
-} from "@repo/types/game";
+  GameContextType, 
+} from "./gameContextType";
 import { SquareType } from "@repo/types/square";
+import { ResponseType } from "../types";
+import { BoardSize } from "@repo/types/board";
 
 type Prop = {
   children: ReactNode;
@@ -23,27 +19,135 @@ type Prop = {
 const GameContext = createContext<GameContextType | undefined>(undefined); 
 
 export const GameProvider: FC<Prop> = ({ children }) => {
-  const gameState = useRef<GameState>(undefined);
+  const start = async (): Promise<ResponseType> => {
+    const token = localStorage.getItem("token");
 
-  const start = (state: StartState) => {
-    // make api call to start
+    if(!token) {
+      return {
+        success: false,
+        error: "Token not found"
+      }
+    }
+
+    try {
+      const response = await axios.get("http://localhost:8000/api/game/start", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if(!response.data.success) {
+        return {
+          success: false,
+          error: "Failed to start game"
+        }
+      }
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Something went wrong to start game"
+      }
+    }
+  }
+
+  const send = async (size: BoardSize): Promise<ResponseType> => {
+    const token = localStorage.getItem("token");
+
+    if(!token) {
+      return {
+        success: false,
+        error: "Token not found"
+      }
+    }
+
+    try {
+      const response = await axios.get("http://localhost:8000/api/game/send", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        params: {
+          size
+        }
+      });
+
+      if(!response.data.success) {
+        return {
+          success: false,
+          error: "Failed to send target"
+        }
+      }
+
+      return {
+        success: true,
+        data: response.data.data
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Something went wrong to start game"
+      }
+    }
   }
 
   const end = (): boolean => {
-    // make api call to save game 
     return true;
   }
 
-  const handleSquareClick = (
+  const verify = async (
     timeTaken: number, 
     target: SquareType
-  ): boolean => {
-    // api call to BE to verify 
+  ): Promise<ResponseType> => {
+    const token = localStorage.getItem("token");
 
-    return true; 
+    if(!token) {
+      return {
+        success: false,
+        error: "Token not found"
+      }
+    }
+
+    try {
+      const response = await axios.post("http://localhost:8000/api/game/verify", {
+        timeTaken,
+        target
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      }); 
+
+      if(!response.data.success) {
+        if(!response.data.success) {
+          return {
+            success: false,
+            error: "Failed to verify game"
+          }
+        }
+      }
+
+      return {
+        success: true,
+        statusCode: response.status
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Something went wrong to verify game"
+      }
+    }
   }
 
-  return <GameContext.Provider value={{ start, end, handleSquareClick }}>
+  return <GameContext.Provider value={{ 
+    start, 
+    end, 
+    send, 
+    verify 
+  }}>
     { children }
   </GameContext.Provider>
 }

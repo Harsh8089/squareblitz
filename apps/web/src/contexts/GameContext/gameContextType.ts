@@ -1,26 +1,20 @@
-import { BoardSize } from "@repo/types/board";
 import { 
   GameMode, 
-  GameStatus, 
   Timer
 } from "@repo/types/game";
 import { SquareType } from "@repo/types/square";
+import { ResponseType } from "../types";
+import { BoardSize } from "@repo/types/board";
 
 export type Filter = {
   mode?: GameMode;
   timer?: Timer;
 }
 
-export type StartState = {
-  endTime: Timer,
-  mode: GameMode, 
-  size: BoardSize
-}
-
 export type GameContextType = {
-  start: (s: StartState) => void;
+  start: () => Promise<ResponseType>;
   end: () => boolean;
-  handleSquareClick: 
-    (timeTaken: number, t: SquareType) => boolean;
+  send: (size: BoardSize) => Promise<ResponseType>;
+  verify: 
+    (timeTaken: number, t: SquareType) => Promise<ResponseType>;
 };
-

@@ -42,8 +42,11 @@ export class GameService {
 
   sendSquare = (req: Request, res: Response) => {
     const username = (req as any).user;
+    const size = Number(req.query.size);
+
     const game = this.get(username);
-    if(!game) {
+
+    if(!game || !size) {
       return ResponseService.error(res, 500, "No game state found");
     }
 
@@ -52,8 +55,8 @@ export class GameService {
     }
 
     const target = {
-      file: ROWS[Math.floor(Math.random() * 8)],
-      rank: Math.floor(Math.random() * 8) + 1
+      file: ROWS[Math.floor(Math.random() * size)],
+      rank: Math.floor(Math.random() * size) + 1
     } as SquareType;
 
     game.lastTarget = target;
