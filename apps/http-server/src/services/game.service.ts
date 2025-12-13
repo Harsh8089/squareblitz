@@ -1,22 +1,17 @@
 import { SquareType } from "@repo/types/square";
+import { GameMode, GameState, GameStatus, Timer } from "@repo/types/game";
 import { Request, Response } from "express";
 import { ResponseService } from "./response.service.js";
-
-type GameState = {
-  correct: number;
-  incorrect: number;
-  lastTarget?: SquareType;
-  startedAt: number;
-};
+import { BoardSize } from "@repo/types/board";
 
 export class GameService {
+  // one to one mapping (username -> game)
   private games: Map<string, GameState> = new Map();
 
   private set = (username: string) => {
     const game = {
       correct: 0,
-      incorrect: 0,
-      startedAt: new Date().getTime()
+      total: 0,
     };
 
     this.games.set(username, game);
@@ -27,39 +22,79 @@ export class GameService {
   private get = (username: string) => 
     this.games.get(username);
 
+  private delete = (username: string) => 
+    this.games.delete(username);
+
+  private save = (username: string, game: GameState) => {
+    try {
+      // await prisma.games.create()
+    } catch (error) {
+      
+    }
+  }
+
   start = (req: Request, res: Response) => {
     const username = (req as any).user;
+    const size = Number(req.query.size) as BoardSize;
+    const mode = req.query.mode as GameMode;
+    const timer = req.query.timer as Timer;
+
+    if(!size || !mode || !timer) {
+      return ResponseService.error(res, 500, "Missing some game state");
+    }
+
     let game = this.get(username);
 
     if(!game) {
       game = this.set(username);
     }
 
+    game.status = GameStatus.START;
+    game.size = size;
+    game.mode = mode;
+    game.startedAt = Date.now();
+    game.timer = timer;
+
     return ResponseService.success(res, 200, { 
-      startedAt: game?.startedAt 
+      game
     }, "Game initiated"); 
   }
 
   sendSquare = (req: Request, res: Response) => {
     const username = (req as any).user;
-    const size = Number(req.query.size);
 
     const game = this.get(username);
+    const size = game?.size;
 
     if(!game || !size) {
       return ResponseService.error(res, 500, "No game state found");
     }
 
-    if(game.lastTarget) {
-      return ResponseService.error(res, 409, "A square is already awaiting verification");
+    if (game.status !== GameStatus.START) {
+      return ResponseService.error(res, 409, "Game not active");
+    }    
+
+    // if(game.currentTarget) {
+    //   return ResponseService.error(res, 409, "A square is already awaiting verification");
+    // }
+
+    const now = Date.now();
+ 
+    if(now >= game.startedAt! + Number(game.timer) * 1000) {
+      // save game state in db
+      // await this.save(username, game);
+
+      return ResponseService.error(res, 403, "Times up!");
     }
 
+    const idx = Math.floor(Math.random() * size);
+
     const target = {
-      file: ROWS[Math.floor(Math.random() * size)],
-      rank: Math.floor(Math.random() * size) + 1
+      file: ROWS[idx],
+      rank: idx + 1
     } as SquareType;
 
-    game.lastTarget = target;
+    game.currentTarget = target;
     return ResponseService.success(res, 200, { target }, "");
   }
 
@@ -72,7 +107,7 @@ export class GameService {
 
     try {
       const currentTarget = req.body.target as SquareType;
-      if(!currentTarget || !game.lastTarget) {
+      if(!currentTarget || !game.currentTarget) {
         return ResponseService.error(
           res, 
           400, 
@@ -80,19 +115,18 @@ export class GameService {
         );
       }
 
-      const { file, rank } = game.lastTarget;
+      const { file, rank } = game.currentTarget;
 
       const isCorrect =
       currentTarget.file === file &&
       currentTarget.rank === rank;
 
       if (!isCorrect) {
-        game.incorrect++;
         return ResponseService.error(res, 400, "Incorrect square");
       }
 
       game.correct++;
-      game.lastTarget = undefined;
+      game.currentTarget = undefined;
       return ResponseService.success(res, 200, {}, "Correct square");
     } catch (error) {
       return ResponseService.error(res, 500, "", error as any);
@@ -106,18 +140,22 @@ export class GameService {
       return ResponseService.error(res, 500, "No game state found");
     }
 
+    const { correct, total } = game;
+
+    this.delete(username);
+
     return ResponseService.success(res, 200, { 
-      correct: game.correct, 
-      incorrect: game.incorrect 
+      correct,
+      total
     }, "");
   }
 
   cleanUp() {
-    const now = new Date().getTime();
+    const now = Date.now();
 
     for(const [username, state] of this.games.entries()) {
-      if(now - state.startedAt > THIRTY_MINUTES) {
-        this.games.delete(username);
+      if(now - state.startedAt! > THIRTY_MINUTES) {
+        this.delete(username);
       }
     }
   }

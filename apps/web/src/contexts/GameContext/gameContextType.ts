@@ -12,7 +12,8 @@ export type Filter = {
 }
 
 export type GameContextType = {
-  start: () => Promise<ResponseType>;
+  start: 
+    (size: BoardSize, mode: GameMode, timer: Timer) => Promise<ResponseType>;
   end: () => boolean;
   send: (size: BoardSize) => Promise<ResponseType>;
   verify: 

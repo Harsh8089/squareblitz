@@ -1,6 +1,5 @@
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
-import { Game } from "@repo/types/game";
 import { users, initGame, sendMove, verifyMove } from "./game.js";
 
 const PORT = Number(process.env.PORT || 8001);
@@ -27,7 +26,7 @@ wss.on("connection", (ws: WebSocket) => {
   }
 
   ws.on("message", (message) => {
-    const data = JSON.parse(message.toString()) as Game;
+    const data = JSON.parse(message.toString())
 
     switch (data.mode) {
       case "init":

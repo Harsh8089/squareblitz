@@ -1,6 +1,5 @@
 import type { WebSocket } from "ws";
 import { SquareType } from "@repo/types/square";
-import { Game } from "@repo/types/game";
 
 const MAX_ROW_LENGTH = 8;
 
@@ -40,7 +39,7 @@ const sendMove = (ws: WebSocket) => {
     mode: "send",
     target,
     user
-  } as Game));
+  }));
 }
 
 const verifyMove = (ws: WebSocket, target?: SquareType) => {

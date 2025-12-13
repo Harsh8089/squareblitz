@@ -11,6 +11,7 @@ import {
 import { SquareType } from "@repo/types/square";
 import { ResponseType } from "../types";
 import { BoardSize } from "@repo/types/board";
+import { GameMode, Timer } from "@repo/types/game";
 
 type Prop = {
   children: ReactNode;
@@ -19,7 +20,11 @@ type Prop = {
 const GameContext = createContext<GameContextType | undefined>(undefined); 
 
 export const GameProvider: FC<Prop> = ({ children }) => {
-  const start = async (): Promise<ResponseType> => {
+  const start = async (
+    size: BoardSize, 
+    mode: GameMode, 
+    timer: Timer
+  ): Promise<ResponseType> => {
     const token = localStorage.getItem("token");
 
     if(!token) {
@@ -30,9 +35,14 @@ export const GameProvider: FC<Prop> = ({ children }) => {
     }
 
     try {
-      const response = await axios.get("http://localhost:8000/api/game/start", {
+      const response = await axios.get(`http://localhost:8000/api/game/start`, {
         headers: {
           'Authorization': `Bearer ${token}`
+        }, 
+        params: {
+          size,
+          mode, 
+          timer
         }
       });
 
@@ -55,7 +65,7 @@ export const GameProvider: FC<Prop> = ({ children }) => {
     }
   }
 
-  const send = async (size: BoardSize): Promise<ResponseType> => {
+  const send = async (): Promise<ResponseType> => {
     const token = localStorage.getItem("token");
 
     if(!token) {
@@ -69,9 +79,6 @@ export const GameProvider: FC<Prop> = ({ children }) => {
       const response = await axios.get("http://localhost:8000/api/game/send", {
         headers: {
           'Authorization': `Bearer ${token}`
-        },
-        params: {
-          size
         }
       });
 

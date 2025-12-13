@@ -5,13 +5,18 @@ import { SquareType } from "@repo/types/square";
 import { mapSizeToPx } from "../utils";
 import { useGame } from "../contexts";
 import { ResponseType } from "../contexts/types";
+import { GameMode, Timer } from "@repo/types/game";
 
 type Prop = {
   size: BoardSize;
+  mode: GameMode,
+  timer: Timer
 };
 
 export const Board: FC<Prop> = ({
-  size
+  size,
+  mode,
+  timer
 }) => {
   const gameContext = useGame();
   
@@ -28,7 +33,6 @@ export const Board: FC<Prop> = ({
     const response = await send(size) as ResponseType; 
 
     if(response.success) {
-      console.log(response.data.target);
       setCurrentTarget(response.data?.target);
     }
   } 
@@ -46,7 +50,7 @@ export const Board: FC<Prop> = ({
   };
 
   useEffect(() => {
-    start()
+    start(size, mode, timer)
     .then((res: ResponseType) => {
       if(res.success) {
         // show toaster for success

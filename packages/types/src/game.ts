@@ -14,12 +14,13 @@ export enum GameStatus {
 };
 
 export type GameState = {
-  status: GameStatus;
-  mode: GameMode;
-  timer: Timer;
+  status?: GameStatus;
+  mode?: GameMode;
+  timer?: Timer;
   correct: number;
   total: number;
-  timeTaken: number[];
-  size: BoardSize;
-  currentTarget: SquareType;
+  timeTaken?: number[];
+  size?: BoardSize;
+  currentTarget?: SquareType;
+  startedAt?: number;
 };
