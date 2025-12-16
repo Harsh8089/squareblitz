@@ -1,9 +1,8 @@
 import { TimerBar } from "@repo/ui/timerBar";
 import { FC } from "react";
-import { ScorePanel } from "./ScorePanel";
-import { Board } from "./Board";
 import { GameMode, Timer } from "@repo/types/game";
 import { BoardSize } from "@repo/types/board";
+import { Board, ScorePanel } from "../components";
 
 export const Game: FC = () => {
   const size: BoardSize = 4;

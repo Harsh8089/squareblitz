@@ -5,7 +5,9 @@
   "exports": {
     "./board": "./src/board.tsx",
     "./timerBar": "./src/timerBar.tsx",
-    "./timer": "./src/timer.tsx"
+    "./timer": "./src/timer.tsx",
+    "./input": "./src/input.tsx",
+    "./button": "./src/button.tsx"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",
@@ -18,7 +20,8 @@
   },
   "dependencies": {
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.68.0"
   },
   "peerDependencies": {
     "react": "^19.2.0",

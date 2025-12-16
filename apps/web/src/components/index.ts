@@ -1,5 +1,9 @@
 export * from "./Board";
 
-export * from "./Game";
-
 export * from "./ScorePanel";
+
+export * from "./Navbar";
+
+export * from "./UsernameInput";
+
+export * from "./PasswordInput";

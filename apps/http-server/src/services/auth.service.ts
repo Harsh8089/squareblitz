@@ -52,7 +52,7 @@ export class AuthService {
         password: hashedPassword
       });
 
-      return ResponseService.success(res, 200, {}, "Login successful");
+      return ResponseService.success(res, 200, {}, "Register successful");
     } catch (error) {
       return ResponseService.error(res, 500, "", error as any);
     }
