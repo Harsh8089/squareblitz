@@ -7,7 +7,9 @@
     "./timerBar": "./src/timerBar.tsx",
     "./timer": "./src/timer.tsx",
     "./input": "./src/input.tsx",
-    "./button": "./src/button.tsx"
+    "./button": "./src/button.tsx",
+    "./sider": "./src/slider.tsx",
+    "./toggle": "./src/toggle.tsx"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",
