@@ -1,7 +1,5 @@
-import { FC } from "react";
+import { FC } from 'react';
 
 export const ScoreGrid: FC = () => {
-  return <div className="">
-    
-  </div>
-}
+  return <div className=""></div>;
+};

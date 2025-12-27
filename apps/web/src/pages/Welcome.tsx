@@ -1,10 +1,12 @@
-import { FC } from "react";
-import { Navbar } from "../components";
-import { Outlet } from "react-router-dom";
+import { Outlet } from 'react-router-dom';
+import { Navbar } from '../components';
+import { FC } from 'react';
 
 export const Welcome: FC = () => {
-  return <>
-    <Navbar />
-    <Outlet />
-  </>
-}
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+};

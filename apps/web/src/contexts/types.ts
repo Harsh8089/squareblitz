@@ -1,8 +1,8 @@
-import { HttpStatusCode } from "axios";
+import { HttpStatusCode } from 'axios';
 
 export type ResponseType = {
-  success: boolean,
+  success: boolean;
   data?: any;
   error?: string;
-  statusCode?: HttpStatusCode
-}
+  statusCode?: HttpStatusCode;
+};

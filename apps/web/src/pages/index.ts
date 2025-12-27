@@ -1,9 +1,9 @@
-export * from "./Root";
+export * from './Root';
 
-export * from "./Game";
+export * from './Game';
 
-export * from "./Welcome";
+export * from './Welcome';
 
-export * from "./SignIn";
+export * from './SignIn';
 
-export * from "./SignUp";
+export * from './SignUp';

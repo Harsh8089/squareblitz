@@ -1,3 +1,3 @@
-export * from "./AuthContext";
+export * from './AuthContext';
 
-export * from "./GameContext";
+export * from './GameContext';
