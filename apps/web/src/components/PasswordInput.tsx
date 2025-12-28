@@ -15,7 +15,7 @@ export const PasswordInput = <T extends FieldValues>({
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
-    <div className="w-150 flex items-center rounded-md bg-grain-2 pr-4">
+    <div className="w-120 flex items-center rounded-md bg-grain-2 pr-4">
       <Input
         type={showPassword ? 'text' : 'password'}
         placeholder="Password"

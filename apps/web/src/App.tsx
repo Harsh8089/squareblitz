@@ -1,11 +1,13 @@
 import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
-import { Root, Game, Welcome, SignIn, SignUp } from './pages';
+  Root,
+  Game,
+  Welcome,
+  SignIn,
+  SignUp,
+  Statistics,
+  LeaderBoard,
+} from './pages';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { FC } from 'react';
 
 export const App: FC = () => {
@@ -19,6 +21,8 @@ export const App: FC = () => {
             <Route path="sign-up" element={<SignUp />} />
           </Route>
           <Route path="game" element={<Game />} />
+          <Route path="account" element={<Statistics />} />
+          <Route path="leaderboards" element={<LeaderBoard />} />
         </Route>
       </Routes>
     </BrowserRouter>

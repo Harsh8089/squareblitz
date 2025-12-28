@@ -30,7 +30,7 @@ export const SignIn: FC = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-20rem)] items-center justify-center px-4">
-      <h2 className="text-grain-3 text-4xl font-medium text-center mb-12">
+      <h2 className="text-grain-3 text-2xl font-medium text-center mb-12">
         Welcome Back
       </h2>
 
@@ -47,7 +47,7 @@ export const SignIn: FC = () => {
             variant="outline"
           />
 
-          <div className="text-grain-3 text-center mt-4 text-xl gap-4 opacity-70 flex justify-center">
+          <div className="text-grain-3 text-center mt-4 text-lg gap-4 opacity-70 flex justify-center">
             <p>Don’t have an account?</p>
             <button
               type="button"

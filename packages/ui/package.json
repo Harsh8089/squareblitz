@@ -9,7 +9,8 @@
     "./input": "./src/input.tsx",
     "./button": "./src/button.tsx",
     "./sider": "./src/slider.tsx",
-    "./toggle": "./src/toggle.tsx"
+    "./toggle": "./src/toggle.tsx",
+    "./table": "./src/table.tsx"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",

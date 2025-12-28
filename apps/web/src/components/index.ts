@@ -7,3 +7,5 @@ export * from './Navbar';
 export * from './UsernameInput';
 
 export * from './PasswordInput';
+
+export * from './HistoryTable';

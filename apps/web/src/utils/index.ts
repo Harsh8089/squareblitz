@@ -14,4 +14,20 @@ const formatTime = (time: number) => {
   return `00:${time}`;
 };
 
-export { FILES, mapSizeToPx, formatTime };
+const formatJoiningTime = (d?: string) => {
+  if (!d) {
+    return;
+  }
+
+  const date = new Date(d);
+
+  return date
+    .toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+    .replace(/(\d{2} \w{3}) (\d{4})/, '$1, $2');
+};
+
+export { FILES, mapSizeToPx, formatTime, formatJoiningTime };

@@ -1,17 +1,4 @@
-import {
-  ChessBishop,
-  ChessKing,
-  ChessKnight,
-  ChessPawn,
-  ChessQueen,
-  ChessRook,
-  Clock12,
-  Clock3,
-  Clock6,
-  Clock9,
-  Eye,
-  EyeOff,
-} from 'lucide-react';
+import { CHESS_PIECES_ICONS, TIMER_ICONS, VARIANT_ICONS } from '../common';
 import { GameMode, Timer } from '@repo/types/game';
 import { Board, ScorePanel } from '../components';
 import { BoardSize } from '@repo/types/board';
@@ -20,24 +7,6 @@ import { Toggle } from '@repo/ui/toggle';
 import { Button } from '@repo/ui/button';
 import { Slider } from '@repo/ui/sider';
 import { FC, useState } from 'react';
-
-const CHESS_PIECES_ICONS = [
-  <ChessBishop size={50} />,
-  <ChessKing size={50} />,
-  <ChessKnight size={50} />,
-  <ChessPawn size={50} />,
-  <ChessQueen size={50} />,
-  <ChessRook size={50} />,
-];
-
-const TIMER_ICONS = [
-  <Clock12 size={50} />,
-  <Clock3 size={50} />,
-  <Clock6 size={50} />,
-  <Clock9 size={50} />,
-];
-
-const VARIANT_ICONS = [<EyeOff size={50} />, <Eye size={50} />];
 
 export const Game: FC = () => {
   const [start, setStart] = useState<boolean>(false);
@@ -69,18 +38,20 @@ export const Game: FC = () => {
             label={'Board size'}
             icons={CHESS_PIECES_ICONS}
             randomIcon={true}
+            variant="large"
           />
-          <Toggle icons={VARIANT_ICONS} />
+          <Toggle icons={VARIANT_ICONS} variant="large" />
           <Slider
             label={'Timer'}
             min="15"
             max="60"
             step="15"
             icons={TIMER_ICONS}
+            variant="large"
           />
           <Button
             title="Start"
-            className="w-[550px] h-26"
+            className="w-[460px] h-18"
             variant="outline"
             onClick={() => setStart(true)}
           />
