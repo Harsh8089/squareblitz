@@ -9,12 +9,7 @@ import { FC } from 'react';
 type FormState = Omit<User, 'email'>;
 
 export const SignIn: FC = () => {
-  const authContext = useAuth();
-  if (!authContext) {
-    throw new Error('authContext is missing');
-  }
-
-  const { signin } = authContext;
+  const { signin } = useAuth();
   const navigate = useNavigate();
 
   const methods = useForm<FormState>();
@@ -24,7 +19,7 @@ export const SignIn: FC = () => {
     const response = await signin(data);
 
     if (response.success) {
-      navigate('../../game');
+      setTimeout(() => navigate('/game'), 100);
     }
   };
 

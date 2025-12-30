@@ -3,19 +3,20 @@ import { Navbar } from '../components';
 import { useAuth } from '../contexts';
 import { FC } from 'react';
 
-export const Welcome: FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+export const ProtectedRoute: FC = () => {
+  const { isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading ...</div>;
   }
 
-  if (isAuthenticated) {
-    return <Navigate to="/game" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/welcome/sign-in" />;
   }
+
   return (
     <>
-      <Navbar />
+      <Navbar isLoggedIn={true} />
       <Outlet />
     </>
   );

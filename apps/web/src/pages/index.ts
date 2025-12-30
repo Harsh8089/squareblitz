@@ -11,3 +11,5 @@ export * from './SignUp';
 export * from './Statistics';
 
 export * from './LeaderBoard';
+
+export * from './ProtectedRoute';

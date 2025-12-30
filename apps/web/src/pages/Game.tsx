@@ -33,7 +33,7 @@ export const Game: FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full gap-20">
+        <div className="flex flex-col items-center justify-center gap-20">
           <Slider
             label={'Board size'}
             icons={CHESS_PIECES_ICONS}
