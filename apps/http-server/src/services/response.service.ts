@@ -13,6 +13,7 @@ export class ResponseService {
       message,
       data,
     });
+    return;
   }
 
   static error(
@@ -21,10 +22,11 @@ export class ResponseService {
     message: string,
     error = null,
   ) {
-    return res.status(status).json({
+    res.status(status).json({
       success: false,
       message,
       error,
     });
+    return;
   }
 }

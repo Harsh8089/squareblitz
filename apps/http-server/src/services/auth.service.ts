@@ -104,7 +104,7 @@ export class AuthService {
     }
   }
 
-  async logout(res: Response) {
+  async logout(_: Request, res: Response) {
     try {
       res.clearCookie('refreshToken');
       return ResponseService.success(res, 200, {}, '');
