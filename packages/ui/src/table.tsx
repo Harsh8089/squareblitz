@@ -3,7 +3,7 @@ import { BoardSize } from '@repo/types/board';
 import { FC } from 'react';
 
 type Props = {
-  records: {
+  records?: {
     mode: Timer;
     mpm: number;
     accuracy: number;
@@ -23,7 +23,7 @@ export const Table: FC<Props> = ({ records }) => {
           </div>
         ))}
       </div>
-      {records.map((r, i) => (
+      {records?.map((r, i) => (
         <div
           key={i}
           className={`${i & 1 ? 'bg-brown-1' : 'bg-brown-2/25'} grid grid-cols-[2fr_3fr_4fr_1fr_2fr_4fr]

@@ -7,7 +7,7 @@ import { Table } from '@repo/ui/table';
 import { FC, useState } from 'react';
 
 type Props = {
-  records: {
+  records?: {
     mode: Timer;
     mpm: number;
     accuracy: number;
@@ -72,7 +72,7 @@ export const HistoryTable: FC<Props> = ({ records }) => {
           }}
         />
       </div>
-      <Table records={records} />;
+      <Table records={records} />
     </>
   );
 };
