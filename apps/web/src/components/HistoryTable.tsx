@@ -1,5 +1,5 @@
 import { CHESS_PIECES_ICONS, TIMER_ICONS, VARIANT_ICONS } from '../common';
-import { GameMode, Timer } from '@repo/types/game';
+import { GameFilter, GameMode, Timer } from '@repo/types/game';
 import { BoardSize } from '@repo/types/board';
 import { Toggle } from '@repo/ui/toggle';
 import { Slider } from '@repo/ui/sider';
@@ -18,14 +18,10 @@ type Props = {
 };
 
 export const HistoryTable: FC<Props> = ({ records }) => {
-  const [filter, setFilter] = useState<{
-    size: BoardSize;
-    variant: GameMode;
-    mode: Timer;
-  }>({
+  const [filter, setFilter] = useState<GameFilter>({
     size: 4,
-    variant: GameMode.BLIND,
-    mode: '15',
+    mode: GameMode.BLIND,
+    timer: '15' as Timer,
   });
 
   return (
@@ -34,9 +30,6 @@ export const HistoryTable: FC<Props> = ({ records }) => {
         <Slider<BoardSize>
           icons={CHESS_PIECES_ICONS}
           label="Board Size"
-          min="4"
-          max="10"
-          step="1"
           parse={(v) => Number(v) as BoardSize}
           randomIcon={true}
           onChange={(v) => {
@@ -52,7 +45,7 @@ export const HistoryTable: FC<Props> = ({ records }) => {
             setFilter((prev) => {
               return {
                 ...prev,
-                variant: v,
+                mode: v,
               };
             })
           }

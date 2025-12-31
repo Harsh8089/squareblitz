@@ -2,12 +2,16 @@ import { mapSizeToPx } from '../../../apps/web/src/utils';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { Timer } from '@repo/types/game';
 
-type Prop = {
-  timer: Timer;
-  size: number;
+type Props = {
+  timer?: Timer;
+  size?: number;
 };
 
-export const TimerBar: FC<Prop> = ({ timer, size }) => {
+export const TimerBar: FC<Props> = ({ timer, size }) => {
+  if (!timer || !size) {
+    return;
+  }
+
   const endTime = Number(timer);
   const [timeRemaining, setTimeRemaining] = useState<number>(endTime);
 

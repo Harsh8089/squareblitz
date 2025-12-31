@@ -1,5 +1,4 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { GameMode, Timer } from '@repo/types/game';
 import { Board as BoardUI } from '@repo/ui/board';
 import { ResponseType } from '../contexts/types';
 import { SquareType } from '@repo/types/square';
@@ -7,20 +6,13 @@ import { BoardSize } from '@repo/types/board';
 import { mapSizeToPx } from '../utils';
 import { useGame } from '../contexts';
 
-type Prop = {
-  size: BoardSize;
-  mode: GameMode;
-  timer: Timer;
-};
+export const Board: FC = () => {
+  const { start, send, verify, gameState } = useGame();
+  const { size, mode, timer } = gameState?.filter!;
 
-export const Board: FC<Prop> = ({ size, mode, timer }) => {
-  const gameContext = useGame();
-
-  if (!gameContext) {
-    throw new Error('useGame must be used within a GameProvider');
+  if (!size || !mode || !timer) {
+    return;
   }
-
-  const { start, send, verify } = gameContext;
 
   const [currentTarget, setCurrentTarget] = useState<SquareType>();
   const [score, setScore] = useState({ correct: 0, total: 0 });
@@ -46,7 +38,7 @@ export const Board: FC<Prop> = ({ size, mode, timer }) => {
   };
 
   useEffect(() => {
-    start(size, mode, timer).then((res: ResponseType) => {
+    start().then((res: ResponseType) => {
       if (res.success) {
         // show toaster for success
         setTarget(size);

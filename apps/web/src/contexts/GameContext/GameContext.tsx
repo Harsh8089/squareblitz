@@ -1,8 +1,7 @@
-import { createContext, FC, ReactNode, useContext } from 'react';
+import { createContext, FC, ReactNode, useContext, useState } from 'react';
+import { GameMode, GameState, GameStatus } from '@repo/types/game';
 import { GameContextType } from './gameContextType';
-import { GameMode, Timer } from '@repo/types/game';
 import { SquareType } from '@repo/types/square';
-import { BoardSize } from '@repo/types/board';
 import { ResponseType } from '../types';
 import axios from 'axios';
 
@@ -13,11 +12,15 @@ type Prop = {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: FC<Prop> = ({ children }) => {
-  const start = async (
-    size: BoardSize,
-    mode: GameMode,
-    timer: Timer,
-  ): Promise<ResponseType> => {
+  const [gameState, setGameState] = useState<GameState>({
+    filter: {
+      size: 8,
+      mode: GameMode.BLIND,
+      timer: '15',
+    },
+  });
+
+  const start = async (): Promise<ResponseType> => {
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -26,6 +29,17 @@ export const GameProvider: FC<Prop> = ({ children }) => {
         error: 'Token not found',
       };
     }
+
+    if (!gameState?.filter) {
+      return new Promise((_, rej) =>
+        rej({
+          success: false,
+          message: 'Missing game state filter',
+        }),
+      );
+    }
+
+    const { size, mode, timer } = gameState.filter;
 
     try {
       const response = await axios.get(`http://localhost:8000/api/game/start`, {
@@ -45,6 +59,13 @@ export const GameProvider: FC<Prop> = ({ children }) => {
           error: 'Failed to start game',
         };
       }
+
+      setGameState({
+        status: GameStatus.START,
+        filter: gameState.filter,
+        correct: 0,
+        total: 0,
+      });
 
       return {
         success: true,
@@ -149,6 +170,8 @@ export const GameProvider: FC<Prop> = ({ children }) => {
   return (
     <GameContext.Provider
       value={{
+        gameState,
+        setGameState,
         start,
         end,
         send,
@@ -160,4 +183,12 @@ export const GameProvider: FC<Prop> = ({ children }) => {
   );
 };
 
-export const useGame = () => useContext(GameContext);
+export const useGame = () => {
+  const context = useContext(GameContext);
+
+  if (!context) {
+    throw new Error('gameContext must be used within GameProvider');
+  }
+
+  return context;
+};
