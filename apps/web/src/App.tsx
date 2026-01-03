@@ -9,6 +9,7 @@ import {
   ProtectedRoute,
 } from './pages';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { GameSetup } from './components';
 import { FC } from 'react';
 
 export const App: FC = () => {
@@ -16,13 +17,15 @@ export const App: FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Root />}>
-          <Route index element={<Navigate to="/welcome" replace />} />
+          <Route index element={<Navigate to="welcome" replace />} />
           <Route path="welcome" element={<Welcome />}>
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
           </Route>
-          <Route element={<ProtectedRoute />}>
-            <Route path="game" element={<Game />} />
+          <Route path="game" element={<ProtectedRoute />}>
+            <Route index element={<Navigate to="setup" replace />} />
+            <Route path="setup" element={<GameSetup />} />
+            <Route path=":id" element={<Game />} />
             <Route path="account" element={<Statistics />} />
           </Route>
           <Route path="leaderboards" element={<LeaderBoard />} />

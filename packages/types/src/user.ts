@@ -2,23 +2,28 @@ import { GameMode, Timer } from './game';
 import { BoardSize } from './board';
 
 export type User = {
+  // auth information
+  id: string; // from db
   username: string;
   email: string;
   password: string;
-  joined: string;
+  joined: number; // in epoch format
+  refreshToken?: string;
+
+  // game information
   gameStarted?: number;
   gameCompleted?: number;
   playingTime?: number;
   bestRecord: {
-    mode: Timer;
+    timer: Timer;
     mpm?: number;
     accuracy?: number;
   }[];
   history?: {
-    mode: Timer;
+    timer: Timer;
     mpm: number;
     accuracy: number;
-    variant: GameMode;
+    mode: GameMode;
     size: BoardSize;
     date: Date;
   }[];

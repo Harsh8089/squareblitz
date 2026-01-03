@@ -20,11 +20,12 @@ export type GameFilter = {
 };
 
 export type GameState = {
+  id?: string;
   status?: GameStatus;
-  filter: GameFilter;
+  filter?: GameFilter;
   correct?: number;
   total?: number;
   timeTaken?: number[];
   currentTarget?: SquareType;
-  startedAt?: number;
+  startedAt?: number; // in epoch format
 };

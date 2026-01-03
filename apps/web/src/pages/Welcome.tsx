@@ -1,22 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { Navbar } from '../components';
-import { useAuth } from '../contexts';
+import { Outlet } from 'react-router-dom';
 import { FC } from 'react';
 
-export const Welcome: FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to="/game" replace />;
-  }
-  return (
-    <>
-      <Navbar />
-      <Outlet />
-    </>
-  );
-};
+export const Welcome: FC = () => <Outlet />;

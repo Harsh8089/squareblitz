@@ -1,11 +1,13 @@
 import { formatTime } from '../../../apps/web/src/utils';
+import { Timer as TimerType } from '@repo/types/game';
 import { FC, useEffect, useState } from 'react';
 
 type Prop = {
-  endTime: 15 | 30 | 60;
+  timer: TimerType;
 };
 
-export const Timer: FC<Prop> = ({ endTime }) => {
+export const Timer: FC<Prop> = ({ timer }) => {
+  const endTime = parseInt(timer);
   const [timeRemaining, setTimeRemaining] = useState<number>(endTime);
 
   useEffect(() => {

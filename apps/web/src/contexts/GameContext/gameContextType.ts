@@ -8,7 +8,7 @@ export type GameContextType = {
   gameState?: GameState;
   setGameState: Dispatch<SetStateAction<GameState>>;
   start: () => Promise<ResponseType>;
-  end: () => boolean;
+  end: () => Promise<ResponseType>;
   send: (size: BoardSize) => Promise<ResponseType>;
   verify: (timeTaken: number, t: SquareType) => Promise<ResponseType>;
 };

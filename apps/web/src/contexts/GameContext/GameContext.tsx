@@ -1,5 +1,5 @@
+import { GameFilter, GameMode, GameState, GameStatus } from '@repo/types/game';
 import { createContext, FC, ReactNode, useContext, useState } from 'react';
-import { GameMode, GameState, GameStatus } from '@repo/types/game';
 import { GameContextType } from './gameContextType';
 import { SquareType } from '@repo/types/square';
 import { ResponseType } from '../types';
@@ -13,14 +13,10 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: FC<Prop> = ({ children }) => {
   const [gameState, setGameState] = useState<GameState>({
-    filter: {
-      size: 8,
-      mode: GameMode.BLIND,
-      timer: '15',
-    },
+    filter: DEFAULT_FILTER_STATE,
   });
 
-  const start = async (): Promise<ResponseType> => {
+  const getToken = () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -28,6 +24,19 @@ export const GameProvider: FC<Prop> = ({ children }) => {
         success: false,
         error: 'Token not found',
       };
+    }
+
+    return {
+      success: true,
+      token,
+    };
+  };
+
+  const start = async (): Promise<ResponseType> => {
+    const tokenData = getToken();
+
+    if (!tokenData.success) {
+      return tokenData;
     }
 
     if (!gameState?.filter) {
@@ -44,7 +53,7 @@ export const GameProvider: FC<Prop> = ({ children }) => {
     try {
       const response = await axios.get(`http://localhost:8000/api/game/start`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${tokenData.token}`,
         },
         params: {
           size,
@@ -80,19 +89,16 @@ export const GameProvider: FC<Prop> = ({ children }) => {
   };
 
   const send = async (): Promise<ResponseType> => {
-    const token = localStorage.getItem('token');
+    const tokenData = getToken();
 
-    if (!token) {
-      return {
-        success: false,
-        error: 'Token not found',
-      };
+    if (!tokenData.success) {
+      return tokenData;
     }
 
     try {
       const response = await axios.get('http://localhost:8000/api/game/send', {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${tokenData.token}`,
         },
       });
 
@@ -102,6 +108,12 @@ export const GameProvider: FC<Prop> = ({ children }) => {
           error: 'Failed to send target',
         };
       }
+
+      const currentTarget = response.data.data.target;
+      setGameState((prev) => ({
+        ...prev,
+        currentTarget,
+      }));
 
       return {
         success: true,
@@ -115,21 +127,14 @@ export const GameProvider: FC<Prop> = ({ children }) => {
     }
   };
 
-  const end = (): boolean => {
-    return true;
-  };
-
   const verify = async (
     timeTaken: number,
     target: SquareType,
   ): Promise<ResponseType> => {
-    const token = localStorage.getItem('token');
+    const tokenData = getToken();
 
-    if (!token) {
-      return {
-        success: false,
-        error: 'Token not found',
-      };
+    if (!tokenData.success) {
+      return tokenData;
     }
 
     try {
@@ -141,19 +146,25 @@ export const GameProvider: FC<Prop> = ({ children }) => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${tokenData.token}`,
           },
         },
       );
 
       if (!response.data.success) {
-        if (!response.data.success) {
-          return {
-            success: false,
-            error: 'Failed to verify game',
-          };
-        }
+        return {
+          success: false,
+          error: response.data.data.message,
+        };
       }
+
+      const { correct, total } = response.data.data;
+
+      setGameState((prev) => ({
+        ...prev,
+        correct,
+        total,
+      }));
 
       return {
         success: true,
@@ -163,6 +174,48 @@ export const GameProvider: FC<Prop> = ({ children }) => {
       return {
         success: false,
         error: 'Something went wrong to verify game',
+      };
+    }
+  };
+
+  const end = async (): Promise<ResponseType> => {
+    const tokenData = getToken();
+
+    if (!tokenData.success) {
+      return tokenData;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/api/game/end',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        },
+      );
+
+      setGameState({
+        status: GameStatus.END,
+        filter: DEFAULT_FILTER_STATE,
+      });
+
+      if (!response.data.success) {
+        return {
+          success: false,
+          error: 'Failed to start game',
+        };
+      }
+
+      return {
+        success: true,
+        statusCode: response.status,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Something went wrong to end game',
       };
     }
   };
@@ -191,4 +244,10 @@ export const useGame = () => {
   }
 
   return context;
+};
+
+const DEFAULT_FILTER_STATE: GameFilter = {
+  size: 4,
+  mode: GameMode.BLIND,
+  timer: '15',
 };

@@ -1,39 +1,33 @@
-import { FC, useEffect, useMemo, useState } from 'react';
 import { Board as BoardUI } from '@repo/ui/board';
 import { ResponseType } from '../contexts/types';
 import { SquareType } from '@repo/types/square';
+import { FC, useEffect, useMemo } from 'react';
 import { BoardSize } from '@repo/types/board';
+import { Navigate } from 'react-router-dom';
 import { mapSizeToPx } from '../utils';
 import { useGame } from '../contexts';
 
 export const Board: FC = () => {
-  const { start, send, verify, gameState } = useGame();
-  const { size, mode, timer } = gameState?.filter!;
+  const {
+    start,
+    send,
+    verify,
+    end,
+    gameState: { filter, currentTarget } = {},
+  } = useGame();
+
+  const { size, mode, timer } = filter ?? {};
 
   if (!size || !mode || !timer) {
-    return;
+    return <Navigate to={'../setup'} />;
   }
 
-  const [currentTarget, setCurrentTarget] = useState<SquareType>();
-  const [score, setScore] = useState({ correct: 0, total: 0 });
-
   const setTarget = async (size: BoardSize) => {
-    const response = (await send(size)) as ResponseType;
-
-    if (response.success) {
-      setCurrentTarget(response.data?.target);
-    }
+    await send(size);
   };
 
   const handleSquareClick = async (square: SquareType) => {
-    const response = (await verify(0, square)) as ResponseType;
-    const isCorrect = response.success && response.statusCode === 200;
-
-    setScore((prev) => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      total: prev.total + 1,
-    }));
-
+    await verify(0, square);
     setTarget(size);
   };
 
@@ -44,6 +38,10 @@ export const Board: FC = () => {
         setTarget(size);
       }
     });
+
+    return () => {
+      end().catch(console.error);
+    };
   }, []);
 
   const squareSizePx = useMemo(() => mapSizeToPx(size), [size]);

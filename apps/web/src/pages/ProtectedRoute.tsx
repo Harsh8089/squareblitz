@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { Navbar } from '../components';
 import { useAuth } from '../contexts';
+
 import { FC } from 'react';
 
 export const ProtectedRoute: FC = () => {
@@ -16,7 +16,6 @@ export const ProtectedRoute: FC = () => {
 
   return (
     <>
-      <Navbar isLoggedIn={true} />
       <Outlet />
     </>
   );

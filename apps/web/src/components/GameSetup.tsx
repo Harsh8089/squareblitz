@@ -1,4 +1,5 @@
 import { CHESS_PIECES_ICONS, TIMER_ICONS, VARIANT_ICONS } from '../common';
+import { useNavigate } from 'react-router-dom';
 import { BoardSize } from '@repo/types/board';
 import { Timer } from '@repo/types/game';
 import { Toggle } from '@repo/ui/toggle';
@@ -7,18 +8,23 @@ import { Slider } from '@repo/ui/sider';
 import { useGame } from '../contexts';
 import { FC } from 'react';
 
-type Props = {
-  setGameStarted: (v: boolean) => void;
-};
-
-export const GameSetup: FC<Props> = ({ setGameStarted }) => {
-  const { start, setGameState, gameState } = useGame();
+export const GameSetup: FC = () => {
+  const navigate = useNavigate();
+  const { start, setGameState } = useGame();
 
   const startGame = async () => {
     const response = await start();
 
     if (response.success) {
-      setGameStarted(true);
+      const { id } = response.data.data.game;
+
+      navigate(`/game/${id}`, {
+        state: {
+          autoStart: true,
+        },
+      });
+    } else {
+      navigate('/game/setup');
     }
   };
 

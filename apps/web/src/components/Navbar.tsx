@@ -10,8 +10,8 @@ type Props = {
 const navDetails = [
   { title: 'About', path: 'about', showOnLogin: false },
   { title: 'Play', path: '/game', showOnLogin: true },
-  { title: 'Register', path: 'sign-up', showOnLogin: false },
-  { title: 'Login', path: 'sign-in', showOnLogin: false },
+  { title: 'Register', path: 'welcome/sign-up', showOnLogin: false },
+  { title: 'Login', path: 'welcome/sign-in', showOnLogin: false },
   { title: 'Account', path: 'account', showOnLogin: true },
 ] as const;
 
