@@ -35,24 +35,41 @@ export class AuthService {
   }
 
   async signup(req: Request, res: Response) {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!username || !password) {
-      return ResponseService.error(res, 400, 'Missing username/password');
+    if (!username || !email || !password) {
+      return ResponseService.error(res, 400, RESPONSE_MESSAGE.MISSING_CREDS);
     }
     try {
-      const userDb = users.filter((user) => user.username === username)?.at(0);
+      const userDb = users
+        .filter((user) => user.username === username || user.email === email)
+        ?.at(0);
       if (userDb) {
-        return ResponseService.error(res, 409, 'Username already exists');
+        return ResponseService.error(res, 409, RESPONSE_MESSAGE.INVALID_CREDS);
       }
 
       const hashedPassword = await bcrypt.hash(password, SALT_LENGTH);
+
       users.push({
+        id: (users.length + 1).toString(),
         username,
+        email,
         password: hashedPassword,
+        joined: Date.now(),
+        bestRecord: [
+          { timer: '15' },
+          { timer: '30' },
+          { timer: '45' },
+          { timer: '60' },
+        ],
       });
 
-      return ResponseService.success(res, 200, {}, 'Register successful');
+      return ResponseService.success(
+        res,
+        200,
+        {},
+        RESPONSE_MESSAGE.REGISTER_SUCCESS,
+      );
     } catch (error) {
       return ResponseService.error(res, 500, '', error as any);
     }
@@ -62,11 +79,7 @@ export class AuthService {
     const { username, email, password } = req.body;
 
     if (!password || (!username && !email)) {
-      return ResponseService.error(
-        res,
-        400,
-        'Missing username/email or password',
-      );
+      return ResponseService.error(res, 400, RESPONSE_MESSAGE.MISSING_CREDS);
     }
 
     try {
@@ -74,12 +87,16 @@ export class AuthService {
         .filter((user) => user.username === username || user.email === email)
         ?.at(0);
       if (!userDb) {
-        return ResponseService.error(res, 401, 'Invalid username or password');
+        return ResponseService.error(
+          res,
+          401,
+          RESPONSE_MESSAGE.USER_ALREADY_EXISTS,
+        );
       }
 
       const isPasswordMatch = await bcrypt.compare(password, userDb.password);
       if (!isPasswordMatch) {
-        return ResponseService.error(res, 401, 'Invalid username or password');
+        return ResponseService.error(res, 401, RESPONSE_MESSAGE.INVALID_CREDS);
       }
 
       const { accessToken, refreshToken } = this.generateToken(username);
@@ -128,7 +145,7 @@ export class AuthService {
 
       return ResponseService.success(res, 200, { accessToken }, '');
     } catch (error) {
-      return ResponseService.error(res, 500, 'Token refersh failed');
+      return ResponseService.error(res, 500, RESPONSE_MESSAGE.TOKEN_ERROR);
     }
   }
 }
@@ -136,3 +153,11 @@ export class AuthService {
 const SALT_LENGTH = 10;
 const ACCESS_TOKEN_EXPIRES_IN = '15m';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
+
+const enum RESPONSE_MESSAGE {
+  MISSING_CREDS = 'Missing Username/Email/Password',
+  USER_ALREADY_EXISTS = 'Username/Email already exists',
+  INVALID_CREDS = 'Invalid username or password',
+  REGISTER_SUCCESS = 'User registered successfully',
+  TOKEN_ERROR = 'Token refresh failed',
+}

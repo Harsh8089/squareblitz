@@ -1,6 +1,3 @@
-export const users: {
-  username: string;
-  email?: string;
-  password: string;
-  refreshToken?: string;
-}[] = [];
+import { User } from '@repo/types/user';
+
+export const users: User[] = [];

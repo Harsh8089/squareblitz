@@ -10,5 +10,6 @@ router.get('/start', authenticateToken, game.start);
 router.get('/send', authenticateToken, game.sendSquare);
 router.get('/score', authenticateToken, game.score);
 router.post('/verify', authenticateToken, game.verifySquare);
+router.post('/end', authenticateToken, game.end);
 
 export default router;
