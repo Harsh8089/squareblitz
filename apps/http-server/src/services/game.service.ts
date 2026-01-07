@@ -155,6 +155,14 @@ export class GameService {
       game.total = (game.total ?? 0) + 1;
       game.currentTarget = undefined;
 
+      const now = Date.now();
+      if (game.timeTaken?.length) {
+        game.timeTaken = [...game.timeTaken, now - game.lastMoveTimeTaken!];
+      } else {
+        game.timeTaken = [now - game.startedAt!];
+      }
+      game.lastMoveTimeTaken = now;
+
       if (!isCorrect) {
         return ResponseService.success(
           res,
@@ -162,6 +170,7 @@ export class GameService {
           {
             correct: game.correct,
             total: game.total,
+            timeTaken: game.timeTaken.at(-1),
           },
           RESPONSE_MESSAGE.INCORRECT_SQUARE,
         );
@@ -175,6 +184,7 @@ export class GameService {
         {
           correct: game.correct,
           total: game.total,
+          timeTaken: game.timeTaken.at(-1),
         },
         RESPONSE_MESSAGE.CORRECT_SQUARE,
       );
@@ -228,6 +238,7 @@ export class GameService {
       {
         correct,
         total,
+        timeTaken: game.timeTaken,
       },
       '',
     );

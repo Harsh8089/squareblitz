@@ -87,11 +87,7 @@ export class AuthService {
         .filter((user) => user.username === username || user.email === email)
         ?.at(0);
       if (!userDb) {
-        return ResponseService.error(
-          res,
-          401,
-          RESPONSE_MESSAGE.USER_ALREADY_EXISTS,
-        );
+        return ResponseService.error(res, 401, RESPONSE_MESSAGE.INVALID_CREDS);
       }
 
       const isPasswordMatch = await bcrypt.compare(password, userDb.password);
