@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Board, ScorePanel } from '../components';
 import { TimerBar } from '@repo/ui/timerBar';
 import { useGame } from '../contexts';
+import { useTimer } from '../hooks';
 import { FC } from 'react';
 
 export const Game: FC = () => {
@@ -16,14 +17,16 @@ export const Game: FC = () => {
     return;
   }
 
+  const timeRemaining = useTimer(parseInt(timer));
+
   return (
     <div className="w-screen h-screen grid grid-cols-[2fr_2fr]">
       <div className="w-full h-full flex flex-col justify-center items-center">
         <Board />
-        <TimerBar timer={timer} size={size} />
+        <TimerBar timeRemaining={timeRemaining} timer={timer} size={size} />
       </div>
       <div className="w-full my-5">
-        <ScorePanel />
+        <ScorePanel timeRemaining={timeRemaining} />
       </div>
     </div>
   );

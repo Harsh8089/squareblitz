@@ -1,37 +1,20 @@
 import { mapSizeToPx } from '../../../apps/web/src/utils';
-import { FC, useEffect, useMemo, useState } from 'react';
 import { Timer } from '@repo/types/game';
+import { FC, useMemo } from 'react';
 
 type Props = {
+  timeRemaining: number;
   timer?: Timer;
   size?: number;
 };
 
-export const TimerBar: FC<Props> = ({ timer, size }) => {
+export const TimerBar: FC<Props> = ({ timeRemaining, timer, size }) => {
   if (!timer || !size) {
     return;
   }
-
-  const endTime = Number(timer);
-  const [timeRemaining, setTimeRemaining] = useState<number>(endTime);
-
   const squareSizePx = useMemo(() => mapSizeToPx(size) * size, [size]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (timeRemaining <= 0) {
-        return;
-      }
-
-      setTimeRemaining((prev) => prev - 1);
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  });
-
-  const progressPercentage = (timeRemaining / endTime) * 100;
+  const progressPercentage = (timeRemaining / parseInt(timer)) * 100;
 
   return (
     <div

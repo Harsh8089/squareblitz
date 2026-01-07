@@ -10,5 +10,5 @@ export type GameContextType = {
   start: () => Promise<ResponseType>;
   end: () => Promise<ResponseType>;
   send: (size: BoardSize) => Promise<ResponseType>;
-  verify: (timeTaken: number, t: SquareType) => Promise<ResponseType>;
+  verify: (t: SquareType) => Promise<ResponseType>;
 };

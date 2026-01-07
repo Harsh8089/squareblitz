@@ -3,15 +3,17 @@ const FILES = Array.from({ length: 16 }, (_, i) => String.fromCharCode(i + 97));
 const mapSizeToPx = (size: number): number => 135 - ((size - 4) * 40) / 6;
 
 const formatTime = (time: number) => {
-  if (time === 60) {
-    return '01:00';
+  // time is in milliseconds
+  const seconds = Math.floor(time / 1000);
+  const ms = (time % 1000).toString();
+
+  if (ms.length == 1) {
+    return `${seconds}.${ms}0`;
+  } else if (ms.length == 2) {
+    return `${seconds}.${ms}`;
   }
 
-  if (time < 10) {
-    return `00:0${time}`;
-  }
-
-  return `00:${time}`;
+  return `${seconds}.${ms.slice(0, 2)}`;
 };
 
 const formatJoiningTime = (d?: string) => {

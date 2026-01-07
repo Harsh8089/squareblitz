@@ -25,7 +25,9 @@ export type GameState = {
   filter?: GameFilter;
   correct?: number;
   total?: number;
-  timeTaken?: number[];
+  timeTaken?: number[]; // in milliseconds
   currentTarget?: SquareType;
   startedAt?: number; // in epoch format
+  lastMoveCorrect?: boolean;
+  lastMoveTimeTaken?: number; // in epoch format
 };

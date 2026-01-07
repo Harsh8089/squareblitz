@@ -127,10 +127,7 @@ export const GameProvider: FC<Prop> = ({ children }) => {
     }
   };
 
-  const verify = async (
-    timeTaken: number,
-    target: SquareType,
-  ): Promise<ResponseType> => {
+  const verify = async (target: SquareType): Promise<ResponseType> => {
     const tokenData = getToken();
 
     if (!tokenData.success) {
@@ -141,7 +138,6 @@ export const GameProvider: FC<Prop> = ({ children }) => {
       const response = await axios.post(
         'http://localhost:8000/api/game/verify',
         {
-          timeTaken,
           target,
         },
         {
@@ -158,12 +154,14 @@ export const GameProvider: FC<Prop> = ({ children }) => {
         };
       }
 
-      const { correct, total } = response.data.data;
+      const { correct, total, timeTaken, lastMoveCorrect } = response.data.data;
 
       setGameState((prev) => ({
         ...prev,
         correct,
         total,
+        lastMoveCorrect,
+        timeTaken: [...(prev.timeTaken ?? []), timeTaken],
       }));
 
       return {

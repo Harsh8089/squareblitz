@@ -1,13 +1,13 @@
+import { FC, memo, useEffect, useMemo } from 'react';
 import { Board as BoardUI } from '@repo/ui/board';
 import { ResponseType } from '../contexts/types';
 import { SquareType } from '@repo/types/square';
-import { FC, useEffect, useMemo } from 'react';
 import { BoardSize } from '@repo/types/board';
 import { Navigate } from 'react-router-dom';
 import { mapSizeToPx } from '../utils';
 import { useGame } from '../contexts';
 
-export const Board: FC = () => {
+export const Board: FC = memo(() => {
   const {
     start,
     send,
@@ -27,7 +27,7 @@ export const Board: FC = () => {
   };
 
   const handleSquareClick = async (square: SquareType) => {
-    await verify(0, square);
+    await verify(square);
     setTarget(size);
   };
 
@@ -58,4 +58,4 @@ export const Board: FC = () => {
       currentTarget={currentTarget}
     />
   );
-};
+});
