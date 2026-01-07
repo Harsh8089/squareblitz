@@ -171,6 +171,7 @@ export class GameService {
             correct: game.correct,
             total: game.total,
             timeTaken: game.timeTaken.at(-1),
+            lastMoveCorrect: false,
           },
           RESPONSE_MESSAGE.INCORRECT_SQUARE,
         );
@@ -185,6 +186,7 @@ export class GameService {
           correct: game.correct,
           total: game.total,
           timeTaken: game.timeTaken.at(-1),
+          lastMoveCorrect: true,
         },
         RESPONSE_MESSAGE.CORRECT_SQUARE,
       );
