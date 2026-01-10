@@ -6,6 +6,7 @@
     "./square": "./src/square.ts",
     "./board": "./src/board.ts",
     "./game": "./src/game.ts",
+    "./stats": "./src/stats.ts",
     "./statusCode": "./src/statusCode.ts",
     "./user": "./src/user.ts"
   },

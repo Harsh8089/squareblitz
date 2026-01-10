@@ -19,13 +19,16 @@ export type GameFilter = {
   timer?: Timer;
 };
 
+export type ClickDetail = {
+  timeTaken: number; // in milliseconds
+  isCorrect: boolean;
+};
+
 export type GameState = {
   id?: string;
   status?: GameStatus;
   filter?: GameFilter;
-  correct?: number;
-  total?: number;
-  timeTaken?: number[]; // in milliseconds
+  clickDetails?: ClickDetail[];
   currentTarget?: SquareType;
   startedAt?: number; // in epoch format
   lastMoveCorrect?: boolean;
