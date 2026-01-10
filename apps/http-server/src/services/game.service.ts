@@ -1,6 +1,7 @@
 import { GameMode, GameState, GameStatus, Timer } from '@repo/types/game';
 import { ResponseService } from './response.service.js';
 import { SquareType } from '@repo/types/square';
+import { GameStats } from '@repo/types/stats';
 import { BoardSize } from '@repo/types/board';
 import { Request, Response } from 'express';
 
@@ -14,8 +15,6 @@ export class GameService {
     const game: GameState = {
       id: this.totalActiveGames.toString(),
       status: GameStatus.START,
-      correct: 0,
-      total: 0,
       startedAt: Date.now(),
     };
 
@@ -33,6 +32,7 @@ export class GameService {
     if (this.totalActiveGames < 0) this.totalActiveGames = 0;
   };
 
+  // TODO
   private save = (username: string, game: GameState) => {
     try {
       // await prisma.games.create()
@@ -112,7 +112,7 @@ export class GameService {
     const now = Date.now();
 
     if (now >= game.startedAt! + Number(timer) * 1000) {
-      // save game state in db
+      // TODO: save game state in db
       // await this.save(username, game);
 
       this.delete(username);
@@ -133,6 +133,7 @@ export class GameService {
   verifySquare = (req: Request, res: Response) => {
     const username = (req as any).user;
     const game = this.get(username);
+
     if (!game) {
       return ResponseService.error(
         res,
@@ -143,52 +144,44 @@ export class GameService {
 
     try {
       const currentTarget = req.body.target as SquareType;
+
       if (!currentTarget || !game.currentTarget) {
         return ResponseService.error(res, 400, RESPONSE_MESSAGE.TARGET_ERROR);
       }
 
       const { file, rank } = game.currentTarget;
-
       const isCorrect =
         currentTarget.file === file && currentTarget.rank === rank;
 
-      game.total = (game.total ?? 0) + 1;
-      game.currentTarget = undefined;
-
       const now = Date.now();
-      if (game.timeTaken?.length) {
-        game.timeTaken = [...game.timeTaken, now - game.lastMoveTimeTaken!];
-      } else {
-        game.timeTaken = [now - game.startedAt!];
-      }
+      const timeTaken = now - game.lastMoveTimeTaken!;
+
+      const currentClickDetail = {
+        timeTaken,
+        isCorrect,
+      };
+
+      game.clickDetails = game.clickDetails?.length
+        ? [...game.clickDetails, currentClickDetail]
+        : [currentClickDetail];
+
+      const totalClickDetails = game.clickDetails.length;
+
+      game.currentTarget = undefined;
       game.lastMoveTimeTaken = now;
-
-      if (!isCorrect) {
-        return ResponseService.success(
-          res,
-          200,
-          {
-            correct: game.correct,
-            total: game.total,
-            timeTaken: game.timeTaken.at(-1),
-            lastMoveCorrect: false,
-          },
-          RESPONSE_MESSAGE.INCORRECT_SQUARE,
-        );
-      }
-
-      game.correct = (game.correct ?? 0) + 1;
 
       return ResponseService.success(
         res,
         200,
         {
-          correct: game.correct,
-          total: game.total,
-          timeTaken: game.timeTaken.at(-1),
-          lastMoveCorrect: true,
+          correct: isCorrect,
+          total: totalClickDetails,
+          timeTaken,
+          lastMoveCorrect: isCorrect,
         },
-        RESPONSE_MESSAGE.CORRECT_SQUARE,
+        isCorrect
+          ? RESPONSE_MESSAGE.CORRECT_SQUARE
+          : RESPONSE_MESSAGE.INCORRECT_SQUARE,
       );
     } catch (error) {
       return ResponseService.error(res, 500, '', error as any);
@@ -206,7 +199,7 @@ export class GameService {
         RESPONSE_MESSAGE.NO_GAME_STATE_FOUND,
       );
     }
-
+    // TODO
     // this.save(username, game)
 
     this.delete(username);
@@ -219,31 +212,13 @@ export class GameService {
     );
   };
 
-  score = (req: Request, res: Response) => {
-    const username = (req as any).user;
-    const game = this.get(username);
-    if (!game) {
-      return ResponseService.error(
-        res,
-        500,
-        RESPONSE_MESSAGE.NO_GAME_STATE_FOUND,
-      );
-    }
+  stats = (req: Request, res: Response) => {
+    const { id } = req.params;
 
-    const { correct, total } = game;
+    // TODO: get game details from db
+    // const game = await prisma.games.findOne({ id })
 
-    this.delete(username);
-
-    return ResponseService.success(
-      res,
-      200,
-      {
-        correct,
-        total,
-        timeTaken: game.timeTaken,
-      },
-      '',
-    );
+    return ResponseService.success(res, 200, { details: mockGameStats }, '');
   };
 
   cleanUp() {
@@ -276,3 +251,95 @@ const enum RESPONSE_MESSAGE {
   GAME_DELETED = 'Game deleted',
   SQUARE_ALREADY_AWAITING_VERIFICATION = 'A square is already awaiting verification',
 }
+
+// TODO: cleanup mock data
+const mockGameStats: GameStats = {
+  id: '0',
+  filter: {
+    size: 4,
+    mode: GameMode.BLIND,
+    timer: '15',
+  },
+  clickDetails: [
+    {
+      timeTaken: 2500,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 1467,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 450,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 342,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 1234,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 2321,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 1321,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 1000,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 342,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 612,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 2321,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 1321,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 1000,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 1223,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 2123,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 2321,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 1321,
+      isCorrect: false,
+    },
+    {
+      timeTaken: 1000,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 342,
+      isCorrect: true,
+    },
+    {
+      timeTaken: 612,
+      isCorrect: false,
+    },
+  ],
+};

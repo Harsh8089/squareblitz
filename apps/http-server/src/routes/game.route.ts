@@ -8,7 +8,7 @@ const game = new GameService();
 
 router.get('/start', authenticateToken, game.start);
 router.get('/send', authenticateToken, game.sendSquare);
-router.get('/score', authenticateToken, game.score);
+router.get('/stats/:id', authenticateToken, game.stats);
 router.post('/verify', authenticateToken, game.verifySquare);
 router.post('/end', authenticateToken, game.end);
 
