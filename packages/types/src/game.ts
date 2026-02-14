@@ -1,36 +1,42 @@
-import { SquareType } from './square';
-import { BoardSize } from './board';
+import { Square } from './square';
 
 export type Timer = '15' | '30' | '45' | '60';
 
+export type BoardSize = 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
 export enum GameMode {
-  ASSISTED = 'assisted', // Highlights rank + file + flashes square
-  BLIND = 'blind', // Only shows rank + file, no square highlight
+  ASSISTED = 'ASSISTED', // Highlights rank + file + flashes square
+  BLIND = 'BLIND',       // Only shows rank + file, no square highlight
 }
 
 export enum GameStatus {
-  START = 'start',
-  END = 'end',
+  ACTIVE = 'ACTIVE',
+  ABANDONED = 'ABANDONED',
+  COMPLETED = 'COMPLETED',
 }
 
-export type GameFilter = {
+export type GameSettings = {
   size?: BoardSize;
   mode?: GameMode;
   timer?: Timer;
 };
 
-export type ClickDetail = {
-  timeTaken: number; // in milliseconds
-  isCorrect: boolean;
+export type Moves = {
+  targetSquare?: Square;
+  clickedSquare?: Square;
+  isCorrect?: boolean;
+  timeTaken?: number; // in milliseconds
+  timeStamp?: number; // absolute time
 };
 
 export type GameState = {
-  id?: string;
+  id: string;
   status?: GameStatus;
-  filter?: GameFilter;
-  clickDetails?: ClickDetail[];
-  currentTarget?: SquareType;
+  filter?: GameSettings;
   startedAt?: number; // in epoch format
-  lastMoveCorrect?: boolean;
-  lastMoveTimeTaken?: number; // in epoch format
+  completedAt?: number;
+  moves?: Moves[];
+  mpm?: number;
+  accuracy?: number;
+  opponent?: string // ref to User.id in case of mutltiplayer
 };

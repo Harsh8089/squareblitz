@@ -1,30 +1,33 @@
-import { GameMode, Timer } from './game';
-import { BoardSize } from './board';
+import { Timer } from './game';
 
 export type User = {
-  // auth information
-  id: string; // from db
+  id: string; 
   username: string;
   email: string;
   password: string;
   joined: number; // in epoch format
-  refreshToken?: string;
-
-  // game information
-  gameStarted?: number;
-  gameCompleted?: number;
-  playingTime?: number;
-  bestRecord: {
-    timer: Timer;
-    mpm?: number;
-    accuracy?: number;
-  }[];
+  refreshToken?: string; 
+  stats?: {
+    gamesStarted: number;
+    gamesCompleted: number;
+    totalPlayingTime: number;
+    bestMPM?: number;
+    averageAccuracy?: number;
+  }
+  bestRecords: {
+    '15': BestRecordStats,
+    '30': BestRecordStats,
+    '45': BestRecordStats,
+    '60': BestRecordStats,
+  },
   history?: {
-    timer: Timer;
-    mpm: number;
-    accuracy: number;
-    mode: GameMode;
-    size: BoardSize;
-    date: Date;
+    gameId: string;
+    completedAt: string; // in epoch format
   }[];
 };
+
+type BestRecordStats = null | {
+  timer: Timer;
+  mpm?: number;
+  accuracy?: number;
+}
