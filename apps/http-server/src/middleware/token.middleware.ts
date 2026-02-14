@@ -1,7 +1,7 @@
-import { ResponseService } from '../services/response.service.js';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { AppError, UnauthorizedError } from '../utils/errorHandler.utils.js';
 
 dotenv.config();
 
@@ -10,33 +10,41 @@ export type JwtPayload = {
   type: 'access' | 'refresh';
 };
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: string;
+    }
+  }
+}
+
 export const authenticateToken = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return ResponseService.error(res, 401, 'Access token is required');
-    }
-
-    // decode accessToken
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string,
-    ) as JwtPayload;
-
-    if (decoded.type !== 'access') {
-      return ResponseService.error(res, 401, 'Invalid token type');
-    }
-
-    (req as any).user = decoded.username;
-
-    next();
-  } catch (error) {
-    return ResponseService.error(res, 500, '', error as any);
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    throw new AppError(RESPONSE_MESSAGE.TOKEN_NOT_FOUND);
   }
+
+  if(!process.env.JWT_SECRET) {
+    throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
+  }
+
+  // decode accessToken
+  const decoded = jwt.verify(
+    token,
+    process.env.JWT_SECRET as string,
+  ) as JwtPayload;
+
+  if (decoded.type !== 'access') {
+    throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_TOKEN_TYPE);
+  }
+
+  req.user = decoded.username;
+
+  next();
 };
 
 export const verifyRefreshToken = (
@@ -48,7 +56,11 @@ export const verifyRefreshToken = (
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      return ResponseService.error(res, 401, 'Refresh token not found');
+      throw new AppError(RESPONSE_MESSAGE.TOKEN_NOT_FOUND);
+    }
+
+    if(!process.env.JWT_REFRESH_SECRET) {
+      throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
     }
 
     const decoded = jwt.verify(
@@ -57,16 +69,23 @@ export const verifyRefreshToken = (
     ) as JwtPayload;
 
     if (decoded.type !== 'refresh') {
-      return ResponseService.error(res, 403, 'Invalid token type');
+      throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_TOKEN_TYPE);
     }
 
-    (req as any).user = decoded.username;
-
-    next();
+    req.user = decoded.username;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return ResponseService.error(res, 401, 'Refresh token has expired');
+      throw new AppError(RESPONSE_MESSAGE.REFRESH_TOKEN_EXPIRED);
     }
-    return ResponseService.error(res, 403, 'Invalid refresh token');
+  } finally {
+    next();
   }
 };
+
+enum RESPONSE_MESSAGE {
+  SERVER_CONF_ERROR = "Server configuration error",
+  INVALID_TOKEN = "Invalid token",
+  INVALID_TOKEN_TYPE = "Invalid token type",
+  TOKEN_NOT_FOUND = "Token not found",
+  REFRESH_TOKEN_EXPIRED = "Refresh token has expired"
+}

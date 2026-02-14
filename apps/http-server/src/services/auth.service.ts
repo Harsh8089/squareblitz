@@ -5,130 +5,155 @@ import { users } from '../db.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import { AppError, BadRequestError, UnauthorizedError } from '../utils/errorHandler.utils.js';
 
 dotenv.config();
 
 export class AuthService {
   private generateToken(username: string) {
+    if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+      throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
+    }
+
     const accessToken = jwt.sign(
-      {
-        username,
-        type: 'access',
-      } as JwtPayload,
+      { username, type: 'access' } as JwtPayload,
       process.env.JWT_SECRET as string,
       { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
     );
 
     const refreshToken = jwt.sign(
-      {
-        username,
-        type: 'refresh',
-      } as JwtPayload,
+      { username, type: 'refresh' } as JwtPayload,
       process.env.JWT_REFRESH_SECRET as string,
       { expiresIn: REFRESH_TOKEN_EXPIRES_IN },
     );
 
-    return {
-      accessToken,
-      refreshToken,
+    return { accessToken, refreshToken };
+  }
+
+  private setRefreshTokenCookie(res: Response, refreshToken: string) {
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    });
+  }
+
+  signUp = async(req: Request, res: Response) => {
+    const { username, email, password } = req.body;
+    
+    if(!password || (!username && !email)) {
+      throw new BadRequestError(RESPONSE_MESSAGE.MISSING_CREDS);
+    }
+  
+    const existingUser = users.find(
+      (user) => user.username === username || user.email === email
+    );
+    
+    if(existingUser) {
+      throw new AppError(RESPONSE_MESSAGE.USER_ALREADY_EXISTS, 409);
+    }
+  
+    const hashedPassword = await bcrypt.hash(password, SALT_LENGTH);
+    const newUser = {
+      id: (users.length + 1).toString(),
+      username,
+      email,
+      password: hashedPassword,
+      joined: Date.now(),
+      stats: {
+        gamesStarted: 0,
+        gamesCompleted: 0,
+        totalPlayingTime: 0,
+      },
+      bestRecords: {
+        '15': null,
+        '30': null,
+        '45': null,
+        '60': null,
+      },
     };
+  
+    users.push(newUser);
+  
+    return ResponseService.success(
+      res,
+      201,
+      { username: newUser.username },
+      RESPONSE_MESSAGE.REGISTER_SUCCESS
+    );
   }
 
-  async signup(req: Request, res: Response) {
+  signIn = async(req: Request, res: Response) => {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return ResponseService.error(res, 400, RESPONSE_MESSAGE.MISSING_CREDS);
-    }
-    try {
-      const userDb = users
-        .filter((user) => user.username === username || user.email === email)
-        ?.at(0);
-      if (userDb) {
-        return ResponseService.error(res, 409, RESPONSE_MESSAGE.INVALID_CREDS);
-      }
-
-      const hashedPassword = await bcrypt.hash(password, SALT_LENGTH);
-
-      users.push({
-        id: (users.length + 1).toString(),
-        username,
-        email,
-        password: hashedPassword,
-        joined: Date.now(),
-        bestRecord: [
-          { timer: '15' },
-          { timer: '30' },
-          { timer: '45' },
-          { timer: '60' },
-        ],
-      });
-
-      return ResponseService.success(
-        res,
-        200,
-        {},
-        RESPONSE_MESSAGE.REGISTER_SUCCESS,
-      );
-    } catch (error) {
-      return ResponseService.error(res, 500, '', error as any);
-    }
-  }
-
-  async signIn(req: Request, res: Response) {
-    const { username, email, password } = req.body;
-
-    if (!password || (!username && !email)) {
-      return ResponseService.error(res, 400, RESPONSE_MESSAGE.MISSING_CREDS);
+    if(!password || (!username && !email)) {
+      throw new BadRequestError(RESPONSE_MESSAGE.MISSING_CREDS);
     }
 
-    try {
-      const userDb = users
-        .filter((user) => user.username === username || user.email === email)
-        ?.at(0);
-      if (!userDb) {
-        return ResponseService.error(res, 401, RESPONSE_MESSAGE.INVALID_CREDS);
-      }
+    const user = users.find(
+      (u) => u.username === username || u.email === email
+    );
 
-      const isPasswordMatch = await bcrypt.compare(password, userDb.password);
-      if (!isPasswordMatch) {
-        return ResponseService.error(res, 401, RESPONSE_MESSAGE.INVALID_CREDS);
-      }
+    if (!user) {
+      throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_CREDS);
+    }
 
-      const { accessToken, refreshToken } = this.generateToken(username);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_CREDS);
+    }
 
-      res.cookie('refreshToken', refreshToken, {
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+    const { accessToken, refreshToken } = this.generateToken(user.username);
 
-      return ResponseService.success(
-        res,
-        200,
-        {
-          accessToken,
-          user: {
-            username: userDb?.username,
-          },
+    if(!accessToken || !refreshToken) {
+      throw new AppError();
+    }
+
+    this.setRefreshTokenCookie(res, refreshToken);
+
+    return ResponseService.success(
+      res,
+      200,
+      {
+        accessToken,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
         },
-        'Login successful',
-      );
-    } catch (error) {
-      return ResponseService.error(res, 500, '', error as any);
-    }
+      },
+      RESPONSE_MESSAGE.LOGIN_SUCCESS
+    );
   }
 
-  async logout(_: Request, res: Response) {
-    try {
-      res.clearCookie('refreshToken');
-      return ResponseService.success(res, 200, {}, '');
-    } catch (error) {
-      return ResponseService.error(res, 500, '', error as any);
-    }
-  }
+  logout = async (_req: Request, res: Response) => {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
 
-  async generateAccessToken(req: Request, res: Response) {
-    try {
-      const username = (req as any).user;
+    return ResponseService.success(
+      res,
+      200,
+      {},
+      RESPONSE_MESSAGE.LOGOUT_SUCCESS
+    );
+  };
+
+  generateAccessToken = async(req: Request, res: Response) => {
+      const username = req.user;
+
+      if (!username) {
+        throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_CREDS);
+      }
+
+      if (!process.env.JWT_SECRET) {
+        throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
+      }
 
       const accessToken = jwt.sign(
         {
@@ -139,10 +164,12 @@ export class AuthService {
         { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
       );
 
-      return ResponseService.success(res, 200, { accessToken }, '');
-    } catch (error) {
-      return ResponseService.error(res, 500, RESPONSE_MESSAGE.TOKEN_ERROR);
-    }
+      return ResponseService.success(
+        res, 
+        200, 
+        { accessToken }, 
+        RESPONSE_MESSAGE.TOKEN_GENERATED
+      );
   }
 }
 
@@ -155,5 +182,9 @@ const enum RESPONSE_MESSAGE {
   USER_ALREADY_EXISTS = 'Username/Email already exists',
   INVALID_CREDS = 'Invalid username or password',
   REGISTER_SUCCESS = 'User registered successfully',
+  LOGIN_SUCCESS = 'Login successful',
+  LOGOUT_SUCCESS = 'Logged out successfully',
   TOKEN_ERROR = 'Token refresh failed',
+  TOKEN_GENERATED = 'Access token generated',
+  SERVER_CONF_ERROR = "Server configuration error",
 }

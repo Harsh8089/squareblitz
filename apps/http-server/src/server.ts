@@ -1,8 +1,11 @@
-import gameRouter from './routes/game.route.js';
-import userRouter from './routes/auth.route.js';
-import cookieParser from 'cookie-parser';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
+import gameRouter from './routes/game.route.js';
+import userRouter from './routes/auth.route.js';
+
+import { errorHandler } from './utils/errorHandler.utils.js';
 
 const app = express();
 
@@ -12,6 +15,8 @@ app.use(cookieParser());
 
 app.use('/api/auth', userRouter);
 app.use('/api/game', gameRouter);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
 

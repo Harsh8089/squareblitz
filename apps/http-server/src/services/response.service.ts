@@ -5,7 +5,7 @@ export class ResponseService {
   static success(
     res: Response,
     status: StatusCode = 200,
-    data = {},
+    data: any,
     message: string,
   ) {
     res.status(status).json({
@@ -20,7 +20,7 @@ export class ResponseService {
     res: Response,
     status: StatusCode,
     message: string,
-    error = null,
+    error: any = null,
   ) {
     res.status(status).json({
       success: false,

@@ -4,12 +4,12 @@ import { Router } from 'express';
 
 const router: Router = Router();
 
-const game = new GameService();
+const gameService = GameService.getInstance();
 
-router.get('/start', authenticateToken, game.start);
-router.get('/send', authenticateToken, game.sendSquare);
-router.get('/stats/:id', authenticateToken, game.stats);
-router.post('/verify', authenticateToken, game.verifySquare);
-router.post('/end', authenticateToken, game.end);
+router.get('/start', authenticateToken, gameService.start);
+router.get('/send', authenticateToken, gameService.sendSquare);
+router.get('/stats/:id', authenticateToken, gameService.stats);
+router.post('/verify', authenticateToken, gameService.verifySquare);
+router.post('/end', authenticateToken, gameService.end);
 
 export default router;

@@ -1,21 +1,43 @@
-import { GameMode, GameState, GameStatus, Timer } from '@repo/types/game';
+import { 
+  BoardSize, 
+  GameMode, 
+  GameState, 
+  GameStatus, 
+  Timer 
+} from '@repo/types/game';
 import { ResponseService } from './response.service.js';
-import { SquareType } from '@repo/types/square';
-import { GameStats } from '@repo/types/stats';
-import { BoardSize } from '@repo/types/board';
 import { Request, Response } from 'express';
+import { 
+  AppError, 
+  BadRequestError, 
+  NotFoundError, 
+  UnauthorizedError 
+} from '../utils/errorHandler.utils.js';
+import { Square } from '@repo/types/square';
 
 export class GameService {
+  private static instance: GameService;
+
   private totalActiveGames: number = 0;
 
   // one to one mapping (username -> game)
   private games: Map<string, GameState> = new Map();
+  
+  private constructor() {}
+
+  static getInstance(): GameService {
+    if(!GameService.instance) {
+      GameService.instance = new GameService();
+    }
+    return GameService.instance
+  }
 
   private set = (username: string) => {
     const game: GameState = {
       id: this.totalActiveGames.toString(),
-      status: GameStatus.START,
-      startedAt: Date.now(),
+      status: GameStatus.ACTIVE,
+      startedAt: Date.now(), // epoch time format
+      moves: []
     };
 
     this.games.set(username, game);
@@ -40,18 +62,15 @@ export class GameService {
   };
 
   start = (req: Request, res: Response) => {
-    const username = (req as any).user;
+    const username = req.user;
+    if(!username) {
+      throw new UnauthorizedError();
+    }
 
-    const size = Number(req.query.size) as BoardSize;
-    const mode = req.query.mode as GameMode;
-    const timer = req.query.timer as Timer;
+    const { size, mode, timer } = req.query || {};
 
     if (!size || !mode || !timer) {
-      return ResponseService.error(
-        res,
-        500,
-        RESPONSE_MESSAGE.MISSING_GAME_STATE,
-      );
+      throw new NotFoundError(RESPONSE_MESSAGE.MISSING_GAME_STATE);
     }
 
     let game = this.get(username);
@@ -61,47 +80,46 @@ export class GameService {
     }
 
     game.filter = {
-      size,
-      mode,
-      timer,
+      size: Number(size) as BoardSize,
+      mode: mode as GameMode,
+      timer: timer as Timer,
     };
 
     return ResponseService.success(
       res,
       200,
       {
-        game,
+        id: game.id,
+        status: game.status,
+        startedAt: game.startedAt,
+        filter: game.filter,
       },
       'Game initiated',
     );
   };
 
   sendSquare = (req: Request, res: Response) => {
-    const username = (req as any).user;
+    const username = req.user;
+    if(!username) {
+      throw new UnauthorizedError();
+    }
 
     const game = this.get(username);
     if (!game) {
-      return ResponseService.error(
-        res,
-        500,
-        RESPONSE_MESSAGE.NO_GAME_STATE_FOUND,
-      );
+      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
     }
 
     const { size, timer } = game.filter ?? {};
     if (!size || !timer) {
-      return ResponseService.error(
-        res,
-        500,
-        RESPONSE_MESSAGE.MISSING_GAME_STATE,
-      );
+      throw new NotFoundError(RESPONSE_MESSAGE.MISSING_GAME_STATE);
     }
 
-    if (game.status !== GameStatus.START) {
-      return ResponseService.error(res, 409, RESPONSE_MESSAGE.GAME_NOT_ACTIVE);
+    if (game.status !== GameStatus.ACTIVE) {
+      throw new BadRequestError(RESPONSE_MESSAGE.GAME_NOT_ACTIVE);
     }
 
-    // if (game.currentTarget) {
+    // TODO: Fixme from FE
+    // if (game.moves.at(-1).clickedSquare === undefined) {
     //   return ResponseService.error(
     //     res,
     //     409,
@@ -117,88 +135,88 @@ export class GameService {
 
       this.delete(username);
 
-      return ResponseService.error(res, 403, RESPONSE_MESSAGE.TIMES_UP);
+      throw new AppError(RESPONSE_MESSAGE.TIMES_UP, 403);
     }
 
     const idx = Math.floor(Math.random() * size);
     const target = {
       file: ROWS[idx],
       rank: idx + 1,
-    } as SquareType;
-    game.currentTarget = target;
+    } as Square;
+
+    game.moves?.push({
+      targetSquare: target,
+      timeStamp: Date.now()
+    });
 
     return ResponseService.success(res, 200, { target }, '');
   };
 
   verifySquare = (req: Request, res: Response) => {
-    const username = (req as any).user;
+    const username = req.user;
+    if(!username) {
+      throw new UnauthorizedError();
+    }
+
     const game = this.get(username);
-
     if (!game) {
-      return ResponseService.error(
-        res,
-        500,
-        RESPONSE_MESSAGE.NO_GAME_STATE_FOUND,
-      );
+      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
     }
 
-    try {
-      const currentTarget = req.body.target as SquareType;
+    const clickedSquare = req.body.target as Square;
 
-      if (!currentTarget || !game.currentTarget) {
-        return ResponseService.error(res, 400, RESPONSE_MESSAGE.TARGET_ERROR);
-      }
+    const { targetSquare, timeStamp, clickedSquare: lastClickedSquare } = 
+      game.moves?.at(-1) || {};
+    if (
+      !game.moves?.length 
+      || !targetSquare
+      || !clickedSquare 
+      || !timeStamp 
+      || lastClickedSquare
+    ) {
+      throw new BadRequestError(RESPONSE_MESSAGE.TARGET_ERROR)
+    }
 
-      const { file, rank } = game.currentTarget;
-      const isCorrect =
-        currentTarget.file === file && currentTarget.rank === rank;
+    const { file, rank } = targetSquare;
+    const isCorrect = clickedSquare.file === file && clickedSquare.rank === rank;
 
-      const now = Date.now();
-      const timeTaken = now - game.lastMoveTimeTaken!;
+    const now = Date.now();
+    const timeTaken = now - timeStamp;
 
-      const currentClickDetail = {
-        timeTaken,
-        isCorrect,
-      };
+    const lastIndex = game.moves.length - 1;
+    game.moves[lastIndex] = {
+      ...game.moves[lastIndex],
+      clickedSquare,
+      timeTaken,
+      isCorrect
+    };
 
-      game.clickDetails = game.clickDetails?.length
-        ? [...game.clickDetails, currentClickDetail]
-        : [currentClickDetail];
-
-      const totalClickDetails = game.clickDetails.length;
-
-      game.currentTarget = undefined;
-      game.lastMoveTimeTaken = now;
-
-      return ResponseService.success(
-        res,
-        200,
-        {
-          correct: isCorrect,
-          total: totalClickDetails,
+    return ResponseService.success(
+      res,
+      200,
+      {
+        clickDetail: {
           timeTaken,
-          lastMoveCorrect: isCorrect,
+          isCorrect
         },
-        isCorrect
-          ? RESPONSE_MESSAGE.CORRECT_SQUARE
-          : RESPONSE_MESSAGE.INCORRECT_SQUARE,
-      );
-    } catch (error) {
-      return ResponseService.error(res, 500, '', error as any);
-    }
+      },
+      isCorrect
+        ? RESPONSE_MESSAGE.CORRECT_SQUARE
+        : RESPONSE_MESSAGE.INCORRECT_SQUARE,
+    );
   };
 
   end = (req: Request, res: Response) => {
-    const username = (req as any).user;
+    const username = req.user;
+    if(!username) {
+      throw new UnauthorizedError();
+    }
 
     const game = this.get(username);
     if (!game) {
-      return ResponseService.error(
-        res,
-        500,
-        RESPONSE_MESSAGE.NO_GAME_STATE_FOUND,
-      );
+      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
     }
+
     // TODO
     // this.save(username, game)
 
@@ -218,9 +236,10 @@ export class GameService {
     // TODO: get game details from db
     // const game = await prisma.games.findOne({ id })
 
-    return ResponseService.success(res, 200, { details: mockGameStats }, '');
+    return ResponseService.success(res, 200, {}, '');
   };
 
+  // Feat: Setup cron job to call cleanup()
   cleanUp() {
     const now = Date.now();
 
@@ -232,7 +251,7 @@ export class GameService {
   }
 }
 
-const MAX_ROW_LENGTH = 8;
+const MAX_ROW_LENGTH = 10;
 
 const ROWS = Array.from({ length: MAX_ROW_LENGTH }, (_, r) =>
   String.fromCharCode(r + 97),
@@ -253,93 +272,93 @@ const enum RESPONSE_MESSAGE {
 }
 
 // TODO: cleanup mock data
-const mockGameStats: GameStats = {
-  id: '0',
-  filter: {
-    size: 4,
-    mode: GameMode.BLIND,
-    timer: '15',
-  },
-  clickDetails: [
-    {
-      timeTaken: 2500,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 1467,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 450,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 342,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 1234,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 2321,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 1321,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 1000,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 342,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 612,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 2321,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 1321,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 1000,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 1223,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 2123,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 2321,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 1321,
-      isCorrect: false,
-    },
-    {
-      timeTaken: 1000,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 342,
-      isCorrect: true,
-    },
-    {
-      timeTaken: 612,
-      isCorrect: false,
-    },
-  ],
-};
+// const mockGameStats: GameStats = {
+//   id: '0',
+//   filter: {
+//     size: 4,
+//     mode: GameMode.BLIND,
+//     timer: '15',
+//   },
+//   clickDetails: [
+//     {
+//       timeTaken: 2500,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 1467,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 450,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 342,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 1234,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 2321,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 1321,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 1000,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 342,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 612,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 2321,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 1321,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 1000,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 1223,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 2123,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 2321,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 1321,
+//       isCorrect: false,
+//     },
+//     {
+//       timeTaken: 1000,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 342,
+//       isCorrect: true,
+//     },
+//     {
+//       timeTaken: 612,
+//       isCorrect: false,
+//     },
+//   ],
+// };
