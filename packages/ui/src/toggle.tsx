@@ -1,4 +1,4 @@
-import { FC, ReactElement, useMemo, useState, cloneElement } from 'react';
+import { FC, ReactElement, useState, cloneElement } from 'react';
 import { GameMode } from '@repo/types/game';
 
 type IconProps = {

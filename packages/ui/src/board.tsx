@@ -1,14 +1,14 @@
-import { SquareType } from '@repo/types/square';
 import { TargetOverlay } from './targetOverlay';
-import { BoardSize } from '@repo/types/board';
 import { BoardSquare } from './boardSquare';
 import { FC } from 'react';
+import { BoardSize } from '@repo/types/game';
+import { Square } from '@repo/types/square';
 
 type Prop = {
   size: BoardSize;
   squareSizePx: number;
-  handleSquareClick: (t: SquareType) => void;
-  currentTarget: SquareType;
+  handleSquareClick: (t: Square) => void;
+  currentTarget: Square;
 };
 
 export const Board: FC<Prop> = ({
