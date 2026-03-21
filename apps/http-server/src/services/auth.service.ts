@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import { AppError, BadRequestError, UnauthorizedError } from '../utils/errorHandler.utils.js';
+import { AuthData } from "@repo/types/response";
 
 dotenv.config();
 
@@ -77,10 +78,10 @@ export class AuthService {
   
     users.push(newUser);
   
-    return ResponseService.success(
+    return ResponseService.success<AuthData>(
       res,
       201,
-      { username: newUser.username },
+      { user: newUser.username },
       RESPONSE_MESSAGE.REGISTER_SUCCESS
     );
   }
@@ -113,16 +114,13 @@ export class AuthService {
 
     this.setRefreshTokenCookie(res, refreshToken);
 
-    return ResponseService.success(
+    return ResponseService.success<AuthData>(
       res,
       200,
       {
+        id: user.id,
         accessToken,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-        },
+        user: user.username,
       },
       RESPONSE_MESSAGE.LOGIN_SUCCESS
     );
@@ -136,7 +134,7 @@ export class AuthService {
       path: '/',
     });
 
-    return ResponseService.success(
+    return ResponseService.success<AuthData>(
       res,
       200,
       {},
@@ -164,7 +162,7 @@ export class AuthService {
         { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
       );
 
-      return ResponseService.success(
+      return ResponseService.success<AuthData>(
         res, 
         200, 
         { accessToken }, 

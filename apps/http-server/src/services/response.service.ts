@@ -1,18 +1,24 @@
 import { StatusCode } from '@repo/types/statusCode';
 import { Response } from 'express';
 
+type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
 export class ResponseService {
-  static success(
+  static success<T>(
     res: Response,
     status: StatusCode = 200,
-    data: any,
+    data: T,
     message: string,
   ) {
     res.status(status).json({
       success: true,
       message,
       data,
-    });
+    } as ApiResponse<T>);
     return;
   }
 

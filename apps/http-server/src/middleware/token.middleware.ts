@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
-import { AppError, UnauthorizedError } from '../utils/errorHandler.utils.js';
+import { AppError, BadRequestError, UnauthorizedError } from '../utils/errorHandler.utils.js';
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ declare global {
 
 export const authenticateToken = (
   req: Request,
-  res: Response,
+  _: Response,
   next: NextFunction,
 ) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -33,18 +33,24 @@ export const authenticateToken = (
   }
 
   // decode accessToken
-  const decoded = jwt.verify(
-    token,
-    process.env.JWT_SECRET as string,
-  ) as JwtPayload;
-
-  if (decoded.type !== 'access') {
-    throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_TOKEN_TYPE);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+  
+    if (decoded.type !== 'access') {
+      throw new BadRequestError(RESPONSE_MESSAGE.INVALID_TOKEN_TYPE);
+    }
+  
+    req.user = decoded.username;
+    next();
+  } catch (error) {
+    if(error instanceof jwt.TokenExpiredError) {
+      return next(new UnauthorizedError(RESPONSE_MESSAGE.ACCESS_TOKEN_EXPIRED));
+    }
+    if(error instanceof jwt.JsonWebTokenError || error instanceof SyntaxError) {
+      return next(new BadRequestError(RESPONSE_MESSAGE.INVALID_TOKEN));
+    }
+    return next(new AppError());
   }
-
-  req.user = decoded.username;
-
-  next();
 };
 
 export const verifyRefreshToken = (
@@ -87,5 +93,6 @@ enum RESPONSE_MESSAGE {
   INVALID_TOKEN = "Invalid token",
   INVALID_TOKEN_TYPE = "Invalid token type",
   TOKEN_NOT_FOUND = "Token not found",
-  REFRESH_TOKEN_EXPIRED = "Refresh token has expired"
+  REFRESH_TOKEN_EXPIRED = "Refresh token has expired",
+  ACCESS_TOKEN_EXPIRED = "Access token has expired"
 }

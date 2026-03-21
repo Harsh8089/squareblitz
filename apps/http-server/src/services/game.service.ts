@@ -3,6 +3,7 @@ import {
   GameMode, 
   GameState, 
   GameStatus, 
+  Move, 
   Timer 
 } from '@repo/types/game';
 import { ResponseService } from './response.service.js';
@@ -14,6 +15,7 @@ import {
   UnauthorizedError 
 } from '../utils/errorHandler.utils.js';
 import { Square } from '@repo/types/square';
+import { GameData } from '@repo/types/response';
 
 export class GameService {
   private static instance: GameService;
@@ -45,6 +47,7 @@ export class GameService {
     return game;
   };
 
+  // TODO: Fix Assumption: 1 player will have 1 game at a time
   private get = (username: string) => this.games.get(username);
 
   private delete = (username: string) => {
@@ -85,7 +88,7 @@ export class GameService {
       timer: timer as Timer,
     };
 
-    return ResponseService.success(
+    return ResponseService.success<GameState>(
       res,
       200,
       {
@@ -98,7 +101,7 @@ export class GameService {
     );
   };
 
-  sendSquare = (req: Request, res: Response) => {
+  send = (req: Request, res: Response) => {
     const username = req.user;
     if(!username) {
       throw new UnauthorizedError();
@@ -149,10 +152,18 @@ export class GameService {
       timeStamp: Date.now()
     });
 
-    return ResponseService.success(res, 200, { target }, '');
+    return ResponseService.success<GameData>(
+      res, 
+      200, 
+      { 
+        id: game.id,
+        target: game.moves?.at(-1)
+       }, 
+      ''
+    );
   };
 
-  verifySquare = (req: Request, res: Response) => {
+  verify = (req: Request, res: Response) => {
     const username = req.user;
     if(!username) {
       throw new UnauthorizedError();
@@ -189,16 +200,14 @@ export class GameService {
       clickedSquare,
       timeTaken,
       isCorrect
-    };
+    } as Move;
 
-    return ResponseService.success(
+    return ResponseService.success<GameData>(
       res,
       200,
       {
-        clickDetail: {
-          timeTaken,
-          isCorrect
-        },
+        id: game.id,
+        move: game.moves[lastIndex]
       },
       isCorrect
         ? RESPONSE_MESSAGE.CORRECT_SQUARE
@@ -222,7 +231,7 @@ export class GameService {
 
     this.delete(username);
 
-    return ResponseService.success(
+    return ResponseService.success<GameState>(
       res,
       200,
       { id: game.id },
@@ -239,7 +248,7 @@ export class GameService {
     return ResponseService.success(res, 200, {}, '');
   };
 
-  // Feat: Setup cron job to call cleanup()
+  // TODO: Setup cron job to call cleanup()
   cleanUp() {
     const now = Date.now();
 
