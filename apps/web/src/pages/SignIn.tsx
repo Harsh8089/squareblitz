@@ -3,24 +3,20 @@ import { PasswordInput, UsernameInput } from '../components';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@repo/ui/button';
 import { User } from '@repo/types/user';
-import { useAuth } from '../contexts';
 import { FC } from 'react';
+import { useSignin } from '../hooks';
 
 type FormState = Omit<User, 'email'>;
 
 export const SignIn: FC = () => {
-  const { signin } = useAuth();
+  const { mutate: signin, isPending } = useSignin();
   const navigate = useNavigate();
 
   const methods = useForm<FormState>();
   const { register, handleSubmit } = methods;
 
-  const onSubmit: SubmitHandler<FormState> = async (data) => {
-    const response = await signin(data);
-
-    if (response.success) {
-      setTimeout(() => navigate('/game'), 100);
-    }
+  const onSubmit: SubmitHandler<FormState> = (data) => {
+    signin(data);
   };
 
   return (
@@ -31,13 +27,13 @@ export const SignIn: FC = () => {
 
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <UsernameInput label="username" register={register} />
+          <UsernameInput label="username" register={register} disabled={isPending} />
 
-          <PasswordInput label="password" register={register} />
+          <PasswordInput label="password" register={register} disabled={isPending} />
 
           <Button
             type="submit"
-            title="Sign In"
+            title={isPending ? "Signing in..." : "Sign In"}
             className="mt-6"
             variant="outline"
           />

@@ -1,22 +1,19 @@
 import Logo from '../assets/chess-board.svg';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../contexts';
-import { FC } from 'react';
+import { useLogout } from '../hooks';
+import { useAuth, useGame } from '../contexts';
+import { GameStatus } from '@repo/types/game';
+import { URL } from '../utils';
 
-type Props = {
-  isLoggedIn?: boolean;
-};
+export const Navbar = () => {
+  const { user } = useAuth();
+  const { gameState } = useGame();
+  const { mutate: logout } = useLogout(); 
 
-const navDetails = [
-  { title: 'About', path: 'about', showOnLogin: false },
-  { title: 'Play', path: '/game', showOnLogin: true },
-  { title: 'Register', path: 'welcome/sign-up', showOnLogin: false },
-  { title: 'Login', path: 'welcome/sign-in', showOnLogin: false },
-  { title: 'Account', path: 'account', showOnLogin: true },
-] as const;
+  if(gameState?.status === GameStatus.ACTIVE) {
+    return;
+  }
 
-export const Navbar: FC<Props> = ({ isLoggedIn = false }) => {
-  const { logout } = useAuth();
   return (
     <nav className="w-[90%] h-28 py-10 mx-auto px-10 flex justify-between items-center">
       <div className="flex items-center gap-2">
@@ -31,8 +28,8 @@ export const Navbar: FC<Props> = ({ isLoggedIn = false }) => {
       </div>
 
       <ul className="flex items-center gap-6">
-        {navDetails.map(({ title, path, showOnLogin }) =>
-          isLoggedIn === showOnLogin ? (
+        {NAVIGATION_DETAILS.map(({ title, path, showOnLogin }) =>
+          !!user === showOnLogin ? (
             <li key={title}>
               <NavLink
                 to={path}
@@ -47,10 +44,10 @@ export const Navbar: FC<Props> = ({ isLoggedIn = false }) => {
             </li>
           ) : null,
         )}
-        {isLoggedIn && (
+        {!!user && (
           <button
             className="text-grain-3 text-xl font-medium transition-opacity opacity-50 hover:opacity-75 cursor-pointer"
-            onClick={logout}
+            onClick={() => logout()}
           >
             Logout
           </button>
@@ -59,3 +56,11 @@ export const Navbar: FC<Props> = ({ isLoggedIn = false }) => {
     </nav>
   );
 };
+
+const NAVIGATION_DETAILS = [
+  { title: 'About', path: `${URL.ABOUT}`, showOnLogin: false },
+  { title: 'Play', path: `./${URL.GAME}`, showOnLogin: true },
+  { title: 'Register', path: `${URL.WELCOME}/${URL.REGISTER}`, showOnLogin: false },
+  { title: 'Login', path: `${URL.WELCOME}/${URL.LOGIN}`, showOnLogin: false },
+  { title: 'Account', path: `${URL.ACCOUNT}`, showOnLogin: true },
+] as const;

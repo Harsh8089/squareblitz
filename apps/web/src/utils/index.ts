@@ -1,8 +1,13 @@
+import { URL } from "./url.utils";
+
 const FILES = Array.from({ length: 16 }, (_, i) => String.fromCharCode(i + 97));
 
 const mapSizeToPx = (size: number): number => 135 - ((size - 4) * 40) / 6;
 
-const formatTime = (time: number) => {
+const formatTime = (time?: number) => {
+  if(!time) {
+    return "0.00";
+  }
   // time is in milliseconds
   const seconds = Math.floor(time / 1000);
   const ms = (time % 1000).toString();
@@ -32,4 +37,4 @@ const formatJoiningTime = (d?: string) => {
     .replace(/(\d{2} \w{3}) (\d{4})/, '$1, $2');
 };
 
-export { FILES, mapSizeToPx, formatTime, formatJoiningTime };
+export { FILES, mapSizeToPx, formatTime, formatJoiningTime, URL };

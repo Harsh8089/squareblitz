@@ -15,3 +15,5 @@ export * from './PlayerProfileCard';
 export * from './PersonalBestsCard';
 
 export * from './GameSetup';
+
+export * from './GameStats';

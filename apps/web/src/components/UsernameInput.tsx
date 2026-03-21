@@ -5,11 +5,13 @@ import { Info } from 'lucide-react';
 type Prop<T extends FieldValues> = {
   label: Path<T>;
   register: UseFormRegister<T>;
+  disabled?: boolean;
 };
 
 export const UsernameInput = <T extends FieldValues>({
   label,
   register,
+  disabled = false
 }: Prop<T>) => (
   <Input<T>
     type="text"
@@ -29,5 +31,6 @@ export const UsernameInput = <T extends FieldValues>({
         message: 'Username must have atmost 15 characters.',
       },
     }}
+    disabled={disabled}
   />
 );

@@ -8,29 +8,29 @@ import {
   LeaderBoard,
   ProtectedRoute,
 } from './pages';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { GameSetup } from './components';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { GameSetup, GameStats } from './components';
 import { FC } from 'react';
+import { URL } from './utils';
 
 export const App: FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Root />}>
-          <Route index element={<Navigate to="welcome" replace />} />
-          <Route path="welcome" element={<Welcome />}>
-            <Route path="sign-in" element={<SignIn />} />
-            <Route path="sign-up" element={<SignUp />} />
-          </Route>
-          <Route path="game" element={<ProtectedRoute />}>
-            <Route index element={<Navigate to="setup" replace />} />
-            <Route path="setup" element={<GameSetup />} />
-            <Route path=":id" element={<Game />} />
-            <Route path="account" element={<Statistics />} />
-          </Route>
-          <Route path="leaderboards" element={<LeaderBoard />} />
+    <Routes>
+      <Route path={URL.ROOT} element={<Root />}>
+        <Route index element={<Navigate to={URL.WELCOME} replace />} />
+        <Route path={URL.WELCOME} element={<Welcome />}>
+          <Route path={URL.LOGIN} element={<SignIn />} />
+          <Route path={URL.REGISTER} element={<SignUp />} />
         </Route>
-      </Routes>
-    </BrowserRouter>
+        <Route path={URL.GAME} element={<ProtectedRoute />}>
+          <Route index element={<Navigate to={URL.SETUP} replace />} />
+          <Route path={URL.SETUP} element={<GameSetup />} />
+          <Route path={URL.ID} element={<Game />} />
+          <Route path={URL.STATS} element={<GameStats />} />
+          <Route path={URL.ACCOUNT} element={<Statistics />} />
+        </Route>
+        <Route path={URL.LEADERBOAD} element={<LeaderBoard />} />
+      </Route>
+    </Routes>
   );
 };

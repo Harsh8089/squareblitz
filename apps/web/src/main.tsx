@@ -1,14 +1,21 @@
+import { AuthProvider, GameProvider } from './contexts';
+import { BrowserRouter } from 'react-router-dom';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import React from 'react';
 
-import { AuthProvider, GameProvider } from './contexts';
 import './styles.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <AuthProvider>
-    <GameProvider>
-      <App />
-    </GameProvider>
-  </AuthProvider>,
+const queryClient = new QueryClient();
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <AuthProvider>
+        <GameProvider>
+          <App />
+        </GameProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </QueryClientProvider>,
 );

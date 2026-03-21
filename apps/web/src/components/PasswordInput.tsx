@@ -6,11 +6,13 @@ import { useState } from 'react';
 type Prop<T extends FieldValues> = {
   label: Path<T>;
   register: UseFormRegister<T>;
+  disabled?: boolean;
 };
 
 export const PasswordInput = <T extends FieldValues>({
   label,
   register,
+  disabled = false,
 }: Prop<T>) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -30,6 +32,7 @@ export const PasswordInput = <T extends FieldValues>({
             message: 'Password must have atleast 3 characters.',
           },
         }}
+        disabled={disabled}
       >
         <p
           onClick={() => {

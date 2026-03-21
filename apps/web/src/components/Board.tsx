@@ -1,46 +1,38 @@
 import { FC, memo, useEffect, useMemo } from 'react';
 import { Board as BoardUI } from '@repo/ui/board';
-import { ResponseType } from '../contexts/types';
-import { SquareType } from '@repo/types/square';
-import { BoardSize } from '@repo/types/board';
 import { Navigate } from 'react-router-dom';
-import { mapSizeToPx } from '../utils';
+import { mapSizeToPx, URL } from '../utils';
 import { useGame } from '../contexts';
+import { Square } from '@repo/types/square';
+import { useEnd, useSend, useVerify } from '../hooks/useGameMutations';
 
 export const Board: FC = memo(() => {
-  const {
-    start,
-    send,
-    verify,
-    end,
-    gameState: { filter, currentTarget } = {},
-  } = useGame();
+  const { mutate: send } = useSend();
+  const { mutateAsync: verify } = useVerify();
+  const { mutateAsync: end } = useEnd();
+
+  const { gameState } = useGame();
+
+  const { filter, moves } = gameState ?? {};
 
   const { size, mode, timer } = filter ?? {};
+  const currentTarget = moves?.at(-1)?.targetSquare;
 
   if (!size || !mode || !timer) {
-    return <Navigate to={'../setup'} />;
+    return <Navigate to={`/${URL.SETUP}`} />;
   }
 
-  const setTarget = async (size: BoardSize) => {
-    await send(size);
-  };
-
-  const handleSquareClick = async (square: SquareType) => {
+  const handleSquareClick = async (square: Square) => {
     await verify(square);
-    setTarget(size);
+    send();
   };
 
   useEffect(() => {
-    start().then((res: ResponseType) => {
-      if (res.success) {
-        // show toaster for success
-        setTarget(size);
-      }
-    });
+    send();
 
     return () => {
-      end().catch(console.error);
+      end()
+      .catch(console.error);
     };
   }, []);
 

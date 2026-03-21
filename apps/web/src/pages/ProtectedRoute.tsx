@@ -2,21 +2,14 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts';
 
 import { FC } from 'react';
+import { URL } from '../utils';
 
 export const ProtectedRoute: FC = () => {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  if (isLoading) {
-    return <div>Loading ...</div>;
+  if (!user) {
+    return <Navigate to={`${URL.WELCOME}/${URL.LOGIN}`} />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/welcome/sign-in" />;
-  }
-
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+  return <Outlet />
 };

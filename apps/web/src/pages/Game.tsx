@@ -4,6 +4,7 @@ import { TimerBar } from '@repo/ui/timerBar';
 import { useGame } from '../contexts';
 import { useTimer } from '../hooks';
 import { FC } from 'react';
+import { URL } from '../utils';
 
 export const Game: FC = () => {
   const { gameState } = useGame();
@@ -12,9 +13,7 @@ export const Game: FC = () => {
   const { size, timer } = gameState?.filter ?? {};
 
   if (!size || !timer || !location.state?.autoStart) {
-    <Navigate to={'/game/setup'} />;
-
-    return;
+    return <Navigate to={`${URL.GAME}/${URL.SETUP}`} />;
   }
 
   const timeRemaining = useTimer(parseInt(timer));

@@ -4,28 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@repo/ui/button';
 import { User } from '@repo/types/user';
 import { Input } from '@repo/ui/input';
-import { useAuth } from '../contexts';
 import { Info } from 'lucide-react';
 import { FC } from 'react';
+import { useSignup } from '../hooks';
 
 export const SignUp: FC = () => {
-  const authContext = useAuth();
-  if (!authContext) {
-    throw new Error('authContext is missing');
-  }
-
-  const { signup } = authContext;
+  const { mutate: signup, isPending } = useSignup();
   const navigate = useNavigate();
 
   const methods = useForm<User>();
   const { register, handleSubmit } = methods;
 
-  const onSubmit: SubmitHandler<User> = async (data) => {
-    const response = await signup(data);
-
-    if (response.success) {
-      navigate('../sign-in');
-    }
+  const onSubmit: SubmitHandler<User> = (data) => {
+    signup(data);
   };
 
   return (
@@ -39,7 +30,7 @@ export const SignUp: FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col items-center gap-6"
         >
-          <UsernameInput label="username" register={register} />
+          <UsernameInput label="username" register={register} disabled={isPending} />
 
           <Input
             type="email"
@@ -55,13 +46,14 @@ export const SignUp: FC = () => {
                 message: 'Please provide correct email address',
               },
             }}
+            disabled={isPending}
           />
 
-          <PasswordInput label="password" register={register} />
+          <PasswordInput label="password" register={register} disabled={isPending} />
 
           <Button
             type="submit"
-            title="Sign Up"
+            title={isPending ? "Creating account..." : "Sign Up"}
             className="mt-6"
             variant="outline"
           />

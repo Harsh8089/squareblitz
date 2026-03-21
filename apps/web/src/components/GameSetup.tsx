@@ -1,31 +1,22 @@
 import { CHESS_PIECES_ICONS, TIMER_ICONS, VARIANT_ICONS } from '../common';
-import { useNavigate } from 'react-router-dom';
-import { BoardSize } from '@repo/types/board';
-import { Timer } from '@repo/types/game';
+import { BoardSize, Timer, type GameSettings } from '@repo/types/game';
 import { Toggle } from '@repo/ui/toggle';
 import { Button } from '@repo/ui/button';
 import { Slider } from '@repo/ui/sider';
 import { useGame } from '../contexts';
 import { FC } from 'react';
+import { useStart } from '../hooks/useGameMutations';
 
 export const GameSetup: FC = () => {
-  const navigate = useNavigate();
-  const { start, setGameState } = useGame();
+  const { gameState, setGameState } = useGame();
+  const { mutateAsync: start } = useStart(); 
 
-  const startGame = async () => {
-    const response = await start();
-
-    if (response.success) {
-      const { id } = response.data.data.game;
-
-      navigate(`/game/${id}`, {
-        state: {
-          autoStart: true,
-        },
-      });
-    } else {
-      navigate('/game/setup');
+  const startGame = () => {
+    if(!gameState?.filter) {
+      return;
     }
+
+    start(gameState.filter as Required<GameSettings>);
   };
 
   return (
