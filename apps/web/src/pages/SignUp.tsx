@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@repo/ui/button';
 import { User } from '@repo/types/user';
 import { Input } from '@repo/ui/input';
+import { useSignup } from '../hooks';
 import { Info } from 'lucide-react';
 import { FC } from 'react';
-import { useSignup } from '../hooks';
 
 export const SignUp: FC = () => {
   const { mutate: signup, isPending } = useSignup();
@@ -30,7 +30,11 @@ export const SignUp: FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col items-center gap-6"
         >
-          <UsernameInput label="username" register={register} disabled={isPending} />
+          <UsernameInput
+            label="username"
+            register={register}
+            disabled={isPending}
+          />
 
           <Input
             type="email"
@@ -49,11 +53,15 @@ export const SignUp: FC = () => {
             disabled={isPending}
           />
 
-          <PasswordInput label="password" register={register} disabled={isPending} />
+          <PasswordInput
+            label="password"
+            register={register}
+            disabled={isPending}
+          />
 
           <Button
             type="submit"
-            title={isPending ? "Creating account..." : "Sign Up"}
+            title={isPending ? 'Creating account...' : 'Sign Up'}
             className="mt-6"
             variant="outline"
           />

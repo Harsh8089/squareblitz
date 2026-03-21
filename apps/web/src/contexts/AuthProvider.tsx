@@ -1,10 +1,4 @@
-import {
-  createContext,
-  FC,
-  ReactNode,
-  useContext,
-  useState
-} from 'react';
+import { createContext, FC, ReactNode, useContext, useState } from 'react';
 import { authService } from '../services';
 
 type Prop = {
@@ -22,12 +16,12 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider: FC<Prop> = ({ children }) => {
-  const [user, setUser] = useState<string | null>(() => authService.getCurrentUser());
+  const [user, setUser] = useState<string | null>(() =>
+    authService.getCurrentUser(),
+  );
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser }}
-    >
+    <AuthContext.Provider value={{ user, setUser }}>
       {children}
     </AuthContext.Provider>
   );

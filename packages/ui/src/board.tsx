@@ -1,8 +1,8 @@
 import { TargetOverlay } from './targetOverlay';
-import { BoardSquare } from './boardSquare';
-import { FC } from 'react';
 import { BoardSize } from '@repo/types/game';
 import { Square } from '@repo/types/square';
+import { BoardSquare } from './boardSquare';
+import { FC } from 'react';
 
 type Prop = {
   size: BoardSize;

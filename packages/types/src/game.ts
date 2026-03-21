@@ -6,7 +6,7 @@ export type BoardSize = 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 export enum GameMode {
   ASSISTED = 'ASSISTED', // Highlights rank + file + flashes square
-  BLIND = 'BLIND',       // Only shows rank + file, no square highlight
+  BLIND = 'BLIND', // Only shows rank + file, no square highlight
 }
 
 export enum GameStatus {
@@ -38,5 +38,5 @@ export type GameState = {
   moves?: Move[];
   mpm?: number;
   accuracy?: number;
-  opponent?: string // ref to User.id in case of mutltiplayer
+  opponent?: string; // ref to User.id in case of mutltiplayer
 };

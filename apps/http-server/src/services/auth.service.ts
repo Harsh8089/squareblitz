@@ -1,12 +1,16 @@
+import {
+  AppError,
+  BadRequestError,
+  UnauthorizedError,
+} from '../utils/errorHandler.utils.js';
 import { JwtPayload } from '../middleware/token.middleware.js';
 import { ResponseService } from './response.service.js';
+import { AuthData } from '@repo/types/response';
 import { Request, Response } from 'express';
 import { users } from '../db.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { AppError, BadRequestError, UnauthorizedError } from '../utils/errorHandler.utils.js';
-import { AuthData } from "@repo/types/response";
 
 dotenv.config();
 
@@ -34,28 +38,28 @@ export class AuthService {
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/',
     });
   }
 
-  signUp = async(req: Request, res: Response) => {
+  signUp = async (req: Request, res: Response) => {
     const { username, email, password } = req.body;
-    
-    if(!password || (!username && !email)) {
+
+    if (!password || (!username && !email)) {
       throw new BadRequestError(RESPONSE_MESSAGE.MISSING_CREDS);
     }
-  
+
     const existingUser = users.find(
-      (user) => user.username === username || user.email === email
+      (user) => user.username === username || user.email === email,
     );
-    
-    if(existingUser) {
+
+    if (existingUser) {
       throw new AppError(RESPONSE_MESSAGE.USER_ALREADY_EXISTS, 409);
     }
-  
+
     const hashedPassword = await bcrypt.hash(password, SALT_LENGTH);
     const newUser = {
       id: (users.length + 1).toString(),
@@ -75,26 +79,26 @@ export class AuthService {
         '60': null,
       },
     };
-  
+
     users.push(newUser);
-  
+
     return ResponseService.success<AuthData>(
       res,
       201,
       { user: newUser.username },
-      RESPONSE_MESSAGE.REGISTER_SUCCESS
+      RESPONSE_MESSAGE.REGISTER_SUCCESS,
     );
-  }
+  };
 
-  signIn = async(req: Request, res: Response) => {
+  signIn = async (req: Request, res: Response) => {
     const { username, email, password } = req.body;
 
-    if(!password || (!username && !email)) {
+    if (!password || (!username && !email)) {
       throw new BadRequestError(RESPONSE_MESSAGE.MISSING_CREDS);
     }
 
     const user = users.find(
-      (u) => u.username === username || u.email === email
+      (u) => u.username === username || u.email === email,
     );
 
     if (!user) {
@@ -108,7 +112,7 @@ export class AuthService {
 
     const { accessToken, refreshToken } = this.generateToken(user.username);
 
-    if(!accessToken || !refreshToken) {
+    if (!accessToken || !refreshToken) {
       throw new AppError();
     }
 
@@ -122,9 +126,9 @@ export class AuthService {
         accessToken,
         user: user.username,
       },
-      RESPONSE_MESSAGE.LOGIN_SUCCESS
+      RESPONSE_MESSAGE.LOGIN_SUCCESS,
     );
-  }
+  };
 
   logout = async (_req: Request, res: Response) => {
     res.clearCookie('refreshToken', {
@@ -138,37 +142,37 @@ export class AuthService {
       res,
       200,
       {},
-      RESPONSE_MESSAGE.LOGOUT_SUCCESS
+      RESPONSE_MESSAGE.LOGOUT_SUCCESS,
     );
   };
 
-  generateAccessToken = async(req: Request, res: Response) => {
-      const username = req.user;
+  generateAccessToken = async (req: Request, res: Response) => {
+    const username = req.user;
 
-      if (!username) {
-        throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_CREDS);
-      }
+    if (!username) {
+      throw new UnauthorizedError(RESPONSE_MESSAGE.INVALID_CREDS);
+    }
 
-      if (!process.env.JWT_SECRET) {
-        throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
-      }
+    if (!process.env.JWT_SECRET) {
+      throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
+    }
 
-      const accessToken = jwt.sign(
-        {
-          username,
-          type: 'access',
-        },
-        process.env.JWT_SECRET as string,
-        { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
-      );
+    const accessToken = jwt.sign(
+      {
+        username,
+        type: 'access',
+      },
+      process.env.JWT_SECRET as string,
+      { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
+    );
 
-      return ResponseService.success<AuthData>(
-        res, 
-        200, 
-        { accessToken }, 
-        RESPONSE_MESSAGE.TOKEN_GENERATED
-      );
-  }
+    return ResponseService.success<AuthData>(
+      res,
+      200,
+      { accessToken },
+      RESPONSE_MESSAGE.TOKEN_GENERATED,
+    );
+  };
 }
 
 const SALT_LENGTH = 10;
@@ -184,5 +188,5 @@ const enum RESPONSE_MESSAGE {
   LOGOUT_SUCCESS = 'Logged out successfully',
   TOKEN_ERROR = 'Token refresh failed',
   TOKEN_GENERATED = 'Access token generated',
-  SERVER_CONF_ERROR = "Server configuration error",
+  SERVER_CONF_ERROR = 'Server configuration error',
 }

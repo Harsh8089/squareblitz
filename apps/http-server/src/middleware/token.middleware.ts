@@ -1,7 +1,11 @@
+import {
+  AppError,
+  BadRequestError,
+  UnauthorizedError,
+} from '../utils/errorHandler.utils.js';
 import { Request, Response, NextFunction } from 'express';
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { AppError, BadRequestError, UnauthorizedError } from '../utils/errorHandler.utils.js';
 
 dotenv.config();
 
@@ -28,25 +32,31 @@ export const authenticateToken = (
     throw new AppError(RESPONSE_MESSAGE.TOKEN_NOT_FOUND);
   }
 
-  if(!process.env.JWT_SECRET) {
+  if (!process.env.JWT_SECRET) {
     throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
   }
 
   // decode accessToken
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-  
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as JwtPayload;
+
     if (decoded.type !== 'access') {
       throw new BadRequestError(RESPONSE_MESSAGE.INVALID_TOKEN_TYPE);
     }
-  
+
     req.user = decoded.username;
     next();
   } catch (error) {
-    if(error instanceof jwt.TokenExpiredError) {
+    if (error instanceof jwt.TokenExpiredError) {
       return next(new UnauthorizedError(RESPONSE_MESSAGE.ACCESS_TOKEN_EXPIRED));
     }
-    if(error instanceof jwt.JsonWebTokenError || error instanceof SyntaxError) {
+    if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
       return next(new BadRequestError(RESPONSE_MESSAGE.INVALID_TOKEN));
     }
     return next(new AppError());
@@ -65,7 +75,7 @@ export const verifyRefreshToken = (
       throw new AppError(RESPONSE_MESSAGE.TOKEN_NOT_FOUND);
     }
 
-    if(!process.env.JWT_REFRESH_SECRET) {
+    if (!process.env.JWT_REFRESH_SECRET) {
       throw new AppError(RESPONSE_MESSAGE.SERVER_CONF_ERROR);
     }
 
@@ -89,10 +99,10 @@ export const verifyRefreshToken = (
 };
 
 enum RESPONSE_MESSAGE {
-  SERVER_CONF_ERROR = "Server configuration error",
-  INVALID_TOKEN = "Invalid token",
-  INVALID_TOKEN_TYPE = "Invalid token type",
-  TOKEN_NOT_FOUND = "Token not found",
-  REFRESH_TOKEN_EXPIRED = "Refresh token has expired",
-  ACCESS_TOKEN_EXPIRED = "Access token has expired"
+  SERVER_CONF_ERROR = 'Server configuration error',
+  INVALID_TOKEN = 'Invalid token',
+  INVALID_TOKEN_TYPE = 'Invalid token type',
+  TOKEN_NOT_FOUND = 'Token not found',
+  REFRESH_TOKEN_EXPIRED = 'Refresh token has expired',
+  ACCESS_TOKEN_EXPIRED = 'Access token has expired',
 }

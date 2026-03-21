@@ -1,12 +1,12 @@
-import { URL } from "./url.utils";
+import { URL } from './url.utils';
 
 const FILES = Array.from({ length: 16 }, (_, i) => String.fromCharCode(i + 97));
 
 const mapSizeToPx = (size: number): number => 135 - ((size - 4) * 40) / 6;
 
 const formatTime = (time?: number) => {
-  if(!time) {
-    return "0.00";
+  if (!time) {
+    return '0.00';
   }
   // time is in milliseconds
   const seconds = Math.floor(time / 1000);

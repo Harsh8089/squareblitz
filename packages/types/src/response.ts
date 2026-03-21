@@ -1,9 +1,9 @@
-import { GameState, Move } from "./game";
+import { GameState, Move } from './game';
 
 export type Response<T> = {
   success: boolean;
   message?: string;
-  data?: T
+  data?: T;
 };
 
 export type AuthData = {
@@ -13,6 +13,6 @@ export type AuthData = {
 };
 
 export interface GameData extends GameState {
-  target?: Move,
-  move?: Move
-};
+  target?: Move;
+  move?: Move;
+}

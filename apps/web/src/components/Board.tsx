@@ -1,10 +1,10 @@
+import { useEnd, useSend, useVerify } from '../hooks/useGameMutations';
 import { FC, memo, useEffect, useMemo } from 'react';
 import { Board as BoardUI } from '@repo/ui/board';
+import { Square } from '@repo/types/square';
 import { Navigate } from 'react-router-dom';
 import { mapSizeToPx, URL } from '../utils';
 import { useGame } from '../contexts';
-import { Square } from '@repo/types/square';
-import { useEnd, useSend, useVerify } from '../hooks/useGameMutations';
 
 export const Board: FC = memo(() => {
   const { mutate: send } = useSend();
@@ -31,8 +31,7 @@ export const Board: FC = memo(() => {
     send();
 
     return () => {
-      end()
-      .catch(console.error);
+      end().catch(console.error);
     };
   }, []);
 

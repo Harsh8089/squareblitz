@@ -1,16 +1,16 @@
+import { useAuth, useGame } from '../contexts';
+import { GameStatus } from '@repo/types/game';
 import Logo from '../assets/chess-board.svg';
 import { NavLink } from 'react-router-dom';
 import { useLogout } from '../hooks';
-import { useAuth, useGame } from '../contexts';
-import { GameStatus } from '@repo/types/game';
 import { URL } from '../utils';
 
 export const Navbar = () => {
   const { user } = useAuth();
   const { gameState } = useGame();
-  const { mutate: logout } = useLogout(); 
+  const { mutate: logout } = useLogout();
 
-  if(gameState?.status === GameStatus.ACTIVE) {
+  if (gameState?.status === GameStatus.ACTIVE) {
     return;
   }
 
@@ -60,7 +60,11 @@ export const Navbar = () => {
 const NAVIGATION_DETAILS = [
   { title: 'About', path: `${URL.ABOUT}`, showOnLogin: false },
   { title: 'Play', path: `./${URL.GAME}`, showOnLogin: true },
-  { title: 'Register', path: `${URL.WELCOME}/${URL.REGISTER}`, showOnLogin: false },
+  {
+    title: 'Register',
+    path: `${URL.WELCOME}/${URL.REGISTER}`,
+    showOnLogin: false,
+  },
   { title: 'Login', path: `${URL.WELCOME}/${URL.LOGIN}`, showOnLogin: false },
   { title: 'Account', path: `${URL.ACCOUNT}`, showOnLogin: true },
 ] as const;

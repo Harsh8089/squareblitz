@@ -6,7 +6,7 @@ import { URL } from '../utils';
 export const useTimer = (time: number) => {
   const navigate = useNavigate();
   const { id } = useGame().gameState ?? {};
-  
+
   const [timeRemaining, setTimeRemaining] = useState<number>(time);
 
   useEffect(() => {

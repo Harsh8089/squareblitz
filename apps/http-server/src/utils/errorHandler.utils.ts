@@ -1,24 +1,23 @@
-import { NextFunction, Request, Response } from "express";
-import { ResponseService } from "../services/response.service.js";
+import { ResponseService } from '../services/response.service.js';
+import { NextFunction, Request, Response } from 'express';
 
 export const errorHandler = (
-  err: any, 
+  err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal server error';
 
-  return ResponseService.error(
-    res,
-    statusCode,
-    message
-  );
-}
+  return ResponseService.error(res, statusCode, message);
+};
 
 export class AppError extends Error {
-  constructor(public message: string = 'Internal server error', public statusCode: number = 500) {
+  constructor(
+    public message: string = 'Internal server error',
+    public statusCode: number = 500,
+  ) {
     super(message);
     this.statusCode = statusCode;
   }

@@ -11,7 +11,7 @@ type Prop<T extends FieldValues> = {
 export const UsernameInput = <T extends FieldValues>({
   label,
   register,
-  disabled = false
+  disabled = false,
 }: Prop<T>) => (
   <Input<T>
     type="text"

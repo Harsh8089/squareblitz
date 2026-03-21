@@ -5,7 +5,7 @@ type ApiResponse<T> = {
   success: boolean;
   data?: T;
   message?: string;
-}
+};
 
 export class ResponseService {
   static success<T>(

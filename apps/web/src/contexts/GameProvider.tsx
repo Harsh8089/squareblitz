@@ -1,18 +1,13 @@
 import {
-  BoardSize,
-  GameMode,
-  GameSettings,
-  GameState,
-} from '@repo/types/game';
-import { 
-  createContext, 
-  Dispatch, 
-  FC, 
-  ReactNode, 
-  SetStateAction, 
-  useContext, 
-  useState 
+  createContext,
+  Dispatch,
+  FC,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useState,
 } from 'react';
+import { BoardSize, GameMode, GameSettings, GameState } from '@repo/types/game';
 
 type Prop = {
   children: ReactNode;
@@ -25,7 +20,7 @@ type GameContextType = {
 
 const GameContext = createContext<GameContextType>({
   gameState: null,
-  setGameState: () => {}
+  setGameState: () => {},
 });
 
 export const GameProvider: FC<Prop> = ({ children }) => {

@@ -3,8 +3,8 @@ import { PasswordInput, UsernameInput } from '../components';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@repo/ui/button';
 import { User } from '@repo/types/user';
-import { FC } from 'react';
 import { useSignin } from '../hooks';
+import { FC } from 'react';
 
 type FormState = Omit<User, 'email'>;
 
@@ -27,13 +27,21 @@ export const SignIn: FC = () => {
 
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <UsernameInput label="username" register={register} disabled={isPending} />
+          <UsernameInput
+            label="username"
+            register={register}
+            disabled={isPending}
+          />
 
-          <PasswordInput label="password" register={register} disabled={isPending} />
+          <PasswordInput
+            label="password"
+            register={register}
+            disabled={isPending}
+          />
 
           <Button
             type="submit"
-            title={isPending ? "Signing in..." : "Sign In"}
+            title={isPending ? 'Signing in...' : 'Sign In'}
             className="mt-6"
             variant="outline"
           />

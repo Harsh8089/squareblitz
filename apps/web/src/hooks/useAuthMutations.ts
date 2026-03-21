@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query"
-import { authService } from "../services"
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts";
-import { URL } from "../utils";
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../services';
+import { useAuth } from '../contexts';
+import { URL } from '../utils';
 
 export const useSignup = () => {
   const navigate = useNavigate();
@@ -13,10 +13,10 @@ export const useSignup = () => {
       navigate(`../${URL.LOGIN}`);
     },
     onError: (error) => {
-      console.error("Signup failed "+error);
+      console.error('Signup failed ' + error);
     },
   });
-}
+};
 
 export const useSignin = () => {
   const navigate = useNavigate();
@@ -34,16 +34,16 @@ export const useSignin = () => {
 
       localStorage.setItem('user', user);
       localStorage.setItem('token', token);
-      
+
       setUser(user);
 
       navigate(`${URL.GAME}/${URL.SETUP}`);
     },
     onError: (error) => {
-      console.error("Signin failed "+error);
-    }
-  })
-}
+      console.error('Signin failed ' + error);
+    },
+  });
+};
 
 export const useLogout = () => {
   const navigate = useNavigate();
@@ -53,10 +53,10 @@ export const useLogout = () => {
     mutationFn: authService.logout,
     onSuccess: () => {
       localStorage.clear();
-      
+
       setUser(null);
 
       navigate(`${URL.WELCOME}/${URL.LOGIN}`);
-    }
-  })
-}
+    },
+  });
+};

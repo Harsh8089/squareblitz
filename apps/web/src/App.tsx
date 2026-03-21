@@ -10,8 +10,8 @@ import {
 } from './pages';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { GameSetup, GameStats } from './components';
-import { FC } from 'react';
 import { URL } from './utils';
+import { FC } from 'react';
 
 export const App: FC = () => {
   return (

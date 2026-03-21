@@ -1,21 +1,21 @@
-import { 
-  BoardSize, 
-  GameMode, 
-  GameState, 
-  GameStatus, 
-  Move, 
-  Timer 
+import {
+  AppError,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../utils/errorHandler.utils.js';
+import {
+  BoardSize,
+  GameMode,
+  GameState,
+  GameStatus,
+  Move,
+  Timer,
 } from '@repo/types/game';
 import { ResponseService } from './response.service.js';
-import { Request, Response } from 'express';
-import { 
-  AppError, 
-  BadRequestError, 
-  NotFoundError, 
-  UnauthorizedError 
-} from '../utils/errorHandler.utils.js';
-import { Square } from '@repo/types/square';
 import { GameData } from '@repo/types/response';
+import { Square } from '@repo/types/square';
+import { Request, Response } from 'express';
 
 export class GameService {
   private static instance: GameService;
@@ -24,14 +24,14 @@ export class GameService {
 
   // one to one mapping (username -> game)
   private games: Map<string, GameState> = new Map();
-  
+
   private constructor() {}
 
   static getInstance(): GameService {
-    if(!GameService.instance) {
+    if (!GameService.instance) {
       GameService.instance = new GameService();
     }
-    return GameService.instance
+    return GameService.instance;
   }
 
   private set = (username: string) => {
@@ -39,7 +39,7 @@ export class GameService {
       id: this.totalActiveGames.toString(),
       status: GameStatus.ACTIVE,
       startedAt: Date.now(), // epoch time format
-      moves: []
+      moves: [],
     };
 
     this.games.set(username, game);
@@ -66,7 +66,7 @@ export class GameService {
 
   start = (req: Request, res: Response) => {
     const username = req.user;
-    if(!username) {
+    if (!username) {
       throw new UnauthorizedError();
     }
 
@@ -103,7 +103,7 @@ export class GameService {
 
   send = (req: Request, res: Response) => {
     const username = req.user;
-    if(!username) {
+    if (!username) {
       throw new UnauthorizedError();
     }
 
@@ -149,23 +149,23 @@ export class GameService {
 
     game.moves?.push({
       targetSquare: target,
-      timeStamp: Date.now()
+      timeStamp: Date.now(),
     });
 
     return ResponseService.success<GameData>(
-      res, 
-      200, 
-      { 
+      res,
+      200,
+      {
         id: game.id,
-        target: game.moves?.at(-1)
-       }, 
-      ''
+        target: game.moves?.at(-1),
+      },
+      '',
     );
   };
 
   verify = (req: Request, res: Response) => {
     const username = req.user;
-    if(!username) {
+    if (!username) {
       throw new UnauthorizedError();
     }
 
@@ -176,20 +176,24 @@ export class GameService {
 
     const clickedSquare = req.body.target as Square;
 
-    const { targetSquare, timeStamp, clickedSquare: lastClickedSquare } = 
-      game.moves?.at(-1) || {};
+    const {
+      targetSquare,
+      timeStamp,
+      clickedSquare: lastClickedSquare,
+    } = game.moves?.at(-1) || {};
     if (
-      !game.moves?.length 
-      || !targetSquare
-      || !clickedSquare 
-      || !timeStamp 
-      || lastClickedSquare
+      !game.moves?.length ||
+      !targetSquare ||
+      !clickedSquare ||
+      !timeStamp ||
+      lastClickedSquare
     ) {
-      throw new BadRequestError(RESPONSE_MESSAGE.TARGET_ERROR)
+      throw new BadRequestError(RESPONSE_MESSAGE.TARGET_ERROR);
     }
 
     const { file, rank } = targetSquare;
-    const isCorrect = clickedSquare.file === file && clickedSquare.rank === rank;
+    const isCorrect =
+      clickedSquare.file === file && clickedSquare.rank === rank;
 
     const now = Date.now();
     const timeTaken = now - timeStamp;
@@ -199,7 +203,7 @@ export class GameService {
       ...game.moves[lastIndex],
       clickedSquare,
       timeTaken,
-      isCorrect
+      isCorrect,
     } as Move;
 
     return ResponseService.success<GameData>(
@@ -207,7 +211,7 @@ export class GameService {
       200,
       {
         id: game.id,
-        move: game.moves[lastIndex]
+        move: game.moves[lastIndex],
       },
       isCorrect
         ? RESPONSE_MESSAGE.CORRECT_SQUARE
@@ -217,7 +221,7 @@ export class GameService {
 
   end = (req: Request, res: Response) => {
     const username = req.user;
-    if(!username) {
+    if (!username) {
       throw new UnauthorizedError();
     }
 

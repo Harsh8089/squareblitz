@@ -1,18 +1,18 @@
 import { CHESS_PIECES_ICONS, TIMER_ICONS, VARIANT_ICONS } from '../common';
 import { BoardSize, Timer, type GameSettings } from '@repo/types/game';
+import { useStart } from '../hooks/useGameMutations';
 import { Toggle } from '@repo/ui/toggle';
 import { Button } from '@repo/ui/button';
 import { Slider } from '@repo/ui/sider';
 import { useGame } from '../contexts';
 import { FC } from 'react';
-import { useStart } from '../hooks/useGameMutations';
 
 export const GameSetup: FC = () => {
   const { gameState, setGameState } = useGame();
-  const { mutateAsync: start } = useStart(); 
+  const { mutateAsync: start } = useStart();
 
   const startGame = () => {
-    if(!gameState?.filter) {
+    if (!gameState?.filter) {
       return;
     }
 

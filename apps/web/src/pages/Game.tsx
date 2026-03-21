@@ -3,8 +3,8 @@ import { Board, ScorePanel } from '../components';
 import { TimerBar } from '@repo/ui/timerBar';
 import { useGame } from '../contexts';
 import { useTimer } from '../hooks';
-import { FC } from 'react';
 import { URL } from '../utils';
+import { FC } from 'react';
 
 export const Game: FC = () => {
   const { gameState } = useGame();
