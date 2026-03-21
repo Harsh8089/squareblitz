@@ -21,7 +21,7 @@ export type GameSettings = {
   timer?: Timer;
 };
 
-export type Moves = {
+export type Move = {
   targetSquare?: Square;
   clickedSquare?: Square;
   isCorrect?: boolean;
@@ -30,12 +30,12 @@ export type Moves = {
 };
 
 export type GameState = {
-  id: string;
+  id: string | null;
   status?: GameStatus;
   filter?: GameSettings;
   startedAt?: number; // in epoch format
   completedAt?: number;
-  moves?: Moves[];
+  moves?: Move[];
   mpm?: number;
   accuracy?: number;
   opponent?: string // ref to User.id in case of mutltiplayer
