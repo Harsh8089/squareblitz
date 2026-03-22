@@ -1,16 +1,17 @@
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth, useGame } from '../contexts';
-import { GameStatus } from '@repo/types/game';
 import Logo from '../assets/chess-board.svg';
-import { NavLink } from 'react-router-dom';
 import { useLogout } from '../hooks';
 import { URL } from '../utils';
 
 export const Navbar = () => {
   const { user } = useAuth();
-  const { gameState } = useGame();
   const { mutate: logout } = useLogout();
 
-  if (gameState?.status === GameStatus.ACTIVE) {
+  const { search } = useLocation();
+  const id = new URLSearchParams(search).get('id');
+
+  if (id) {
     return;
   }
 

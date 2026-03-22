@@ -1,8 +1,8 @@
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { DEFAULT_SETTING_STATE, useGame } from '../contexts';
+import { DEFAULT_GAME_STATE, useGame } from '../contexts';
 import { useMutation } from '@tanstack/react-query';
+import { GameStatus, Move } from '@repo/types/game';
 import { gameService } from '../services';
-import { Move } from '@repo/types/game';
 import { URL } from '../utils';
 
 export const useStart = () => {
@@ -88,12 +88,12 @@ export const useEnd = () => {
     mutationFn: gameService.end,
     onSuccess: () => {
       setGameState({
-        id: null,
-        filter: DEFAULT_SETTING_STATE,
+        ...DEFAULT_GAME_STATE,
+        status: GameStatus.COMPLETED,
       });
     },
     onError: (error) => {
-      console.log('Game end failed ' + error);
+      console.error('Game end failed ' + error);
     },
   });
 };

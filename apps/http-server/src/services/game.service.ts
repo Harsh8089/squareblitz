@@ -13,6 +13,7 @@ import {
   Timer,
 } from '@repo/types/game';
 import { ResponseService } from './response.service.js';
+import { mockGameState } from '../mocks/gameState.js';
 import { GameData } from '@repo/types/response';
 import { Square } from '@repo/types/square';
 import { Request, Response } from 'express';
@@ -130,8 +131,8 @@ export class GameService {
     //   );
     // }
 
+    // TODO: Need to sync with FE timer. Right now BE time is slightly ahead of FE
     const now = Date.now();
-
     if (now >= game.startedAt! + Number(timer) * 1000) {
       // TODO: save game state in db
       // await this.save(username, game);
@@ -158,6 +159,7 @@ export class GameService {
       {
         id: game.id,
         target: game.moves?.at(-1),
+        status: game.status,
       },
       '',
     );
@@ -212,6 +214,7 @@ export class GameService {
       {
         id: game.id,
         move: game.moves[lastIndex],
+        status: game.status,
       },
       isCorrect
         ? RESPONSE_MESSAGE.CORRECT_SQUARE
@@ -221,6 +224,8 @@ export class GameService {
 
   end = (req: Request, res: Response) => {
     const username = req.user;
+    const { status } = req.body;
+
     if (!username) {
       throw new UnauthorizedError();
     }
@@ -229,6 +234,7 @@ export class GameService {
     if (!game) {
       throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
     }
+    game.status = status;
 
     // TODO
     // this.save(username, game)
@@ -238,7 +244,7 @@ export class GameService {
     return ResponseService.success<GameState>(
       res,
       200,
-      { id: game.id },
+      { id: game.id, status: game.status },
       RESPONSE_MESSAGE.GAME_DELETED,
     );
   };
@@ -249,7 +255,12 @@ export class GameService {
     // TODO: get game details from db
     // const game = await prisma.games.findOne({ id })
 
-    return ResponseService.success(res, 200, {}, '');
+    return ResponseService.success<GameState>(
+      res,
+      200,
+      mockGameState.at(0)!,
+      '',
+    );
   };
 
   // TODO: Setup cron job to call cleanup()
@@ -283,95 +294,3 @@ const enum RESPONSE_MESSAGE {
   GAME_DELETED = 'Game deleted',
   SQUARE_ALREADY_AWAITING_VERIFICATION = 'A square is already awaiting verification',
 }
-
-// TODO: cleanup mock data
-// const mockGameStats: GameStats = {
-//   id: '0',
-//   filter: {
-//     size: 4,
-//     mode: GameMode.BLIND,
-//     timer: '15',
-//   },
-//   clickDetails: [
-//     {
-//       timeTaken: 2500,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 1467,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 450,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 342,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 1234,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 2321,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 1321,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 1000,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 342,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 612,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 2321,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 1321,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 1000,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 1223,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 2123,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 2321,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 1321,
-//       isCorrect: false,
-//     },
-//     {
-//       timeTaken: 1000,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 342,
-//       isCorrect: true,
-//     },
-//     {
-//       timeTaken: 612,
-//       isCorrect: false,
-//     },
-//   ],
-// };

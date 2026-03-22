@@ -1,15 +1,17 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { useStats } from '../hooks';
+import { URL } from '../utils';
 import { FC } from 'react';
 
 export const GameStats: FC = () => {
-  const { state, search } = useLocation();
+  const { search } = useLocation();
   const id = new URLSearchParams(search).get('id');
 
-  if (!state?.autoFetch || !id) {
-    <Navigate to={'/game/setup'} />;
-
-    return;
+  if (!id) {
+    return <Navigate to={`/${URL.GAME}/${URL.SETUP}`} />;
   }
 
-  return <div className="text-black">Game stats</div>;
+  const { data, isLoading, isFetching } = useStats(id);
+
+  return <div className="text-black">{JSON.stringify(data)}</div>;
 };

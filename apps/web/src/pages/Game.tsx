@@ -13,7 +13,7 @@ export const Game: FC = () => {
   const { size, timer } = gameState?.filter ?? {};
 
   if (!size || !timer || !location.state?.autoStart) {
-    return <Navigate to={`${URL.GAME}/${URL.SETUP}`} />;
+    return <Navigate to={`/${URL.GAME}/${URL.SETUP}`} />;
   }
 
   const timeRemaining = useTimer(parseInt(timer));

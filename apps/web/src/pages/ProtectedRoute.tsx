@@ -8,7 +8,7 @@ export const ProtectedRoute: FC = () => {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to={`${URL.WELCOME}/${URL.LOGIN}`} />;
+    return <Navigate to={`/${URL.WELCOME}/${URL.LOGIN}`} />;
   }
 
   return <Outlet />;

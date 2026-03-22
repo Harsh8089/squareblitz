@@ -1,6 +1,7 @@
 import { useEnd, useSend, useVerify } from '../hooks/useGameMutations';
 import { FC, memo, useEffect, useMemo } from 'react';
 import { Board as BoardUI } from '@repo/ui/board';
+import { GameStatus } from '@repo/types/game';
 import { Square } from '@repo/types/square';
 import { Navigate } from 'react-router-dom';
 import { mapSizeToPx, URL } from '../utils';
@@ -31,7 +32,7 @@ export const Board: FC = memo(() => {
     send();
 
     return () => {
-      end().catch(console.error);
+      end(GameStatus.COMPLETED).catch(console.error);
     };
   }, []);
 

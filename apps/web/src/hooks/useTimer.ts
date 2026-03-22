@@ -15,17 +15,10 @@ export const useTimer = (time: number) => {
         return;
       }
 
-      navigate(
-        {
-          pathname: `/${URL.GAME}/${URL.STATS}`,
-          search: createSearchParams({ id }).toString(),
-        },
-        {
-          state: {
-            autoFetch: true,
-          },
-        },
-      );
+      navigate({
+        pathname: `/${URL.GAME}/${URL.STATS}`,
+        search: createSearchParams({ id }).toString(),
+      });
       return;
     }
 

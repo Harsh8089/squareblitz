@@ -1,5 +1,5 @@
+import { GameSettings, GameStatus } from '@repo/types/game';
 import { GameData, Response } from '@repo/types/response';
-import { GameSettings } from '@repo/types/game';
 import { Square } from '@repo/types/square';
 import { api } from './axios.service';
 
@@ -31,7 +31,10 @@ export const gameService = {
       })
     ).data;
   },
-  end: async (): GameResponse => {
-    return (await api.post('/game/end', {})).data;
+  end: async (status: GameStatus): GameResponse => {
+    return (await api.post('/game/end', { status })).data;
+  },
+  stats: async (id: string): GameResponse => {
+    return (await api.get(`/game/stats/${id}`)).data;
   },
 };

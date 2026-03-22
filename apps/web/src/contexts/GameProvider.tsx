@@ -7,7 +7,7 @@ import {
   useContext,
   useState,
 } from 'react';
-import { BoardSize, GameMode, GameSettings, GameState } from '@repo/types/game';
+import { BoardSize, GameMode, GameState } from '@repo/types/game';
 
 type Prop = {
   children: ReactNode;
@@ -24,10 +24,7 @@ const GameContext = createContext<GameContextType>({
 });
 
 export const GameProvider: FC<Prop> = ({ children }) => {
-  const [gameState, setGameState] = useState<GameState>({
-    id: null,
-    filter: DEFAULT_SETTING_STATE,
-  });
+  const [gameState, setGameState] = useState<GameState>(DEFAULT_GAME_STATE);
 
   return (
     <GameContext.Provider
@@ -51,8 +48,12 @@ export const useGame = () => {
   return context;
 };
 
-export const DEFAULT_SETTING_STATE: Required<GameSettings> = {
-  size: 4 as BoardSize,
-  mode: GameMode.BLIND,
-  timer: '15',
+export const DEFAULT_GAME_STATE: GameState = {
+  id: null,
+  status: null,
+  filter: {
+    size: 4 as BoardSize,
+    mode: GameMode.BLIND,
+    timer: '15',
+  },
 };

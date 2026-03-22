@@ -31,10 +31,9 @@ export type Move = {
 
 export type GameState = {
   id: string | null;
-  status?: GameStatus;
+  status: GameStatus | null;
   filter?: GameSettings;
   startedAt?: number; // in epoch format
-  completedAt?: number;
   moves?: Move[];
   mpm?: number;
   accuracy?: number;
