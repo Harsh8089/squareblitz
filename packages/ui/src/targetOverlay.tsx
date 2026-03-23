@@ -1,8 +1,8 @@
-import { SquareType } from '@repo/types/square';
+import { Square } from '@repo/types/square';
 import { FC } from 'react';
 
 type Prop = {
-  currentTarget: SquareType;
+  currentTarget: Square;
 };
 
 export const TargetOverlay: FC<Prop> = ({ currentTarget }) => (

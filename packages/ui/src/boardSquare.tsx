@@ -1,4 +1,4 @@
-import { File, Rank, SquareType } from '@repo/types/square';
+import { File, Rank, Square } from '@repo/types/square';
 import { FILES } from '../../../apps/web/src/utils';
 import { FC } from 'react';
 
@@ -7,7 +7,7 @@ type Props = {
   row: number;
   col: number;
   sizePx: number;
-  onSquareClick: (square: SquareType) => void;
+  onSquareClick: (square: Square) => void;
 };
 
 export const BoardSquare: FC<Props> = ({

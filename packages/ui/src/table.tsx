@@ -1,5 +1,4 @@
-import { GameMode, Timer } from '@repo/types/game';
-import { BoardSize } from '@repo/types/board';
+import { BoardSize, GameMode, Timer } from '@repo/types/game';
 import { FC } from 'react';
 
 type Props = {
