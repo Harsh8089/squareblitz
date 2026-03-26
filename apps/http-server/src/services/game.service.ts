@@ -8,10 +8,12 @@ import {
   BoardSize,
   GameMode,
   GameState,
+  GameStats,
   GameStatus,
   Move,
   Timer,
 } from '@repo/types/game';
+import { prepareGameStats } from '../utils/gameStats.utils.js';
 import { ResponseService } from './response.service.js';
 import { mockGameState } from '../mocks/gameState.js';
 import { GameData } from '@repo/types/response';
@@ -255,12 +257,13 @@ export class GameService {
     // TODO: get game details from db
     // const game = await prisma.games.findOne({ id })
 
-    return ResponseService.success<GameState>(
-      res,
-      200,
-      mockGameState.at(0)!,
-      '',
-    );
+    const gameStats = prepareGameStats(mockGameState.at(0)!);
+
+    if (!gameStats) {
+      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
+    }
+
+    return ResponseService.success<GameStats>(res, 200, gameStats, '');
   };
 
   // TODO: Setup cron job to call cleanup()

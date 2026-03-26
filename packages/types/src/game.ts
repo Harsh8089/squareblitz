@@ -39,3 +39,7 @@ export type GameState = {
   accuracy?: number;
   opponent?: string; // ref to User.id in case of mutltiplayer
 };
+
+export type GameStats = Required<
+  Pick<GameState, 'id' | 'moves' | 'mpm' | 'accuracy'>
+>;

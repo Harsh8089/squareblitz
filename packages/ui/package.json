@@ -10,7 +10,9 @@
     "./button": "./src/button.tsx",
     "./sider": "./src/slider.tsx",
     "./toggle": "./src/toggle.tsx",
-    "./table": "./src/table.tsx"
+    "./table": "./src/table.tsx",
+    "./shadcn/chart": "./src/components/ui/chart.tsx",
+    "./shadcn/card": "./src/components/ui/card.tsx"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",
@@ -22,9 +24,14 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.556.0",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-hook-form": "^7.68.0"
+    "react-hook-form": "^7.68.0",
+    "tailwind-merge": "^3.5.0"
   },
   "peerDependencies": {
     "react": "^19.2.0",

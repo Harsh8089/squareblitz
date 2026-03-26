@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { useAuth, useGame } from '../contexts';
 import Logo from '../assets/chess-board.svg';
+import { useAuth } from '../contexts';
 import { useLogout } from '../hooks';
 import { URL } from '../utils';
 
