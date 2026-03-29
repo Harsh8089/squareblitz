@@ -7,20 +7,50 @@ export const prepareGameStats = (
     return;
   }
 
-  // TODO: calculate mpm, accuracy, avg time taken
+  const timer = gameState.filter?.timer!;
+  let avgTimeTaken = 0;
+  let best = +timer;
+  let worst = 0;
+  let streak = 0;
+  let lcStreak = 0;
+  let accuracy = 0;
+  let mpm = 0;
 
   const moves = gameState.moves?.map((move, index) => {
-    return {
-      ...move,
-      id: index,
-      timeTaken: (move.timeTaken ?? 0) / 1000,
-    };
+    const timeTaken = +((move.timeTaken ?? 0) / 1000).toFixed(2);
+
+    avgTimeTaken += timeTaken;
+    best = Math.min(best, timeTaken);
+    worst = Math.max(worst, timeTaken);
+
+    if (move.isCorrect) {
+      lcStreak++;
+      streak = Math.max(streak, lcStreak);
+    } else {
+      lcStreak = 0;
+    }
+
+    return { ...move, id: index, timeTaken };
   });
+
+  const totalMoves = moves?.length ?? 0;
+  const correctCount = moves?.filter((m) => m.isCorrect).length ?? 0;
+
+  if (totalMoves) {
+    avgTimeTaken = +(avgTimeTaken / totalMoves).toFixed(2);
+    accuracy = +((correctCount / totalMoves) * 100).toFixed(2);
+    mpm = +((correctCount / +timer) * 60).toFixed(1);
+  }
 
   return {
     id: gameState.id,
     moves: moves ?? [],
-    accuracy: 98.14,
-    mpm: 67,
+    accuracy,
+    mpm,
+    avgTimeTaken,
+    best: totalMoves ? best : 0,
+    worst,
+    streak,
+    timer,
   };
 };
