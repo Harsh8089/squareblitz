@@ -37,9 +37,24 @@ export type GameState = {
   moves?: Move[];
   mpm?: number;
   accuracy?: number;
+  avgTimeTaken?: number;
+  best?: number;
+  worst?: number;
+  streak?: number;
   opponent?: string; // ref to User.id in case of mutltiplayer
 };
 
 export type GameStats = Required<
-  Pick<GameState, 'id' | 'moves' | 'mpm' | 'accuracy'>
+  Pick<
+    GameState,
+    | 'id'
+    | 'moves'
+    | 'mpm'
+    | 'accuracy'
+    | 'avgTimeTaken'
+    | 'worst'
+    | 'best'
+    | 'streak'
+  > &
+    Pick<GameSettings, 'timer'>
 >;
