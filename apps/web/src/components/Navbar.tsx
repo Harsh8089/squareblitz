@@ -1,17 +1,16 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth, useGame } from '../contexts';
+import { GameStatus } from '@repo/types/game';
 import Logo from '../assets/chess-board.svg';
-import { useAuth } from '../contexts';
+import { NavLink } from 'react-router-dom';
 import { useLogout } from '../hooks';
 import { URL } from '../utils';
 
 export const Navbar = () => {
   const { user } = useAuth();
   const { mutate: logout } = useLogout();
+  const { gameState } = useGame();
 
-  const { search } = useLocation();
-  const id = new URLSearchParams(search).get('id');
-
-  if (id) {
+  if (gameState?.status === GameStatus.ACTIVE) {
     return;
   }
 
@@ -27,7 +26,6 @@ export const Navbar = () => {
         />
         <h1 className="text-grain-3 text-xl font-semibold">Squareblitz</h1>
       </div>
-
       <ul className="flex items-center gap-6">
         {NAVIGATION_DETAILS.map(({ title, path, showOnLogin }) =>
           !!user === showOnLogin ? (
