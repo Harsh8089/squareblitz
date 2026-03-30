@@ -1,11 +1,11 @@
-import { useEnd, useSend, useVerify } from '../hooks/useGameMutations';
+import { useEnd, useSend, useVerify } from '../../hooks/useGameMutations';
 import { FC, memo, useEffect, useMemo } from 'react';
 import { Board as BoardUI } from '@repo/ui/board';
+import { mapSizeToPx, URL } from '../../utils';
 import { GameStatus } from '@repo/types/game';
 import { Square } from '@repo/types/square';
 import { Navigate } from 'react-router-dom';
-import { mapSizeToPx, URL } from '../utils';
-import { useGame } from '../contexts';
+import { useGame } from '../../contexts';
 
 export const Board: FC = memo(() => {
   const { mutate: send } = useSend();

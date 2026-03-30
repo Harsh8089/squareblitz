@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { Chart, ChartLegend } from './charts';
+import { NotFound } from '@repo/ui/notFound';
 import { useStats } from '../hooks';
 import { URL } from '../utils';
 import { FC } from 'react';
@@ -15,7 +16,7 @@ export const GameStats: FC = () => {
   const { search } = useLocation();
   const id = new URLSearchParams(search).get('id');
 
-  const { data: gameStats, isFetching } = useStats(id ?? '');
+  const { data: gameStats, isFetching, error } = useStats(id ?? '');
 
   if (!id) {
     return <Navigate to={`/${URL.GAME}/${URL.SETUP}`} />;
@@ -23,6 +24,10 @@ export const GameStats: FC = () => {
 
   if (isFetching) {
     return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <NotFound />;
   }
 
   const {

@@ -11,6 +11,7 @@
     "./sider": "./src/slider.tsx",
     "./toggle": "./src/toggle.tsx",
     "./table": "./src/table.tsx",
+    "./notFound": "./src/notFound.tsx",
     "./shadcn/chart": "./src/components/ui/chart.tsx",
     "./shadcn/card": "./src/components/ui/card.tsx"
   },

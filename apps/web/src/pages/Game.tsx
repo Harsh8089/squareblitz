@@ -1,32 +1,21 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { Board, ScorePanel } from '../components';
-import { TimerBar } from '@repo/ui/timerBar';
-import { useGame } from '../contexts';
-import { useTimer } from '../hooks';
-import { URL } from '../utils';
+import { Board, TimerBar, TimerControls } from '../components/games';
+import { GameSessionProvider } from '../contexts';
+import { ScorePanel } from '../components';
 import { FC } from 'react';
 
 export const Game: FC = () => {
-  const { gameState } = useGame();
-  const location = useLocation();
-
-  const { size, timer } = gameState?.filter ?? {};
-
-  if (!size || !timer || !location.state?.autoStart) {
-    return <Navigate to={`/${URL.GAME}/${URL.SETUP}`} />;
-  }
-
-  const timeRemaining = useTimer(parseInt(timer));
-
   return (
-    <div className="w-screen h-screen grid grid-cols-[2fr_2fr]">
-      <div className="w-full h-full flex flex-col justify-center items-center">
-        <Board />
-        <TimerBar timeRemaining={timeRemaining} timer={timer} size={size} />
+    <GameSessionProvider>
+      <div className="w-screen h-screen grid grid-cols-[2fr_2fr]">
+        <div className="w-full h-full flex flex-col justify-center items-center">
+          <Board />
+          <TimerBar />
+          <TimerControls />
+        </div>
+        <div className="w-full my-5">
+          <ScorePanel />
+        </div>
       </div>
-      <div className="w-full my-5">
-        <ScorePanel timeRemaining={timeRemaining} />
-      </div>
-    </div>
+    </GameSessionProvider>
   );
 };

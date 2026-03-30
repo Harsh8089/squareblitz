@@ -1,22 +1,19 @@
-import { FC, memo, ReactElement, useCallback, useEffect, useMemo } from 'react';
+import { FC, memo, ReactElement, useMemo } from 'react';
+import { useGame, useGameSession } from '../contexts';
 import { Move } from '@repo/types/game';
 import { Check, X } from 'lucide-react';
 import { Timer } from '@repo/ui/timer';
-import { useGame } from '../contexts';
 import { formatTime } from '../utils';
 
-type Props = {
-  timeRemaining: number;
-};
-
-export const ScorePanel: FC<Props> = ({ timeRemaining }) => {
+export const ScorePanel: FC = () => {
   const { moves } = useGame().gameState ?? {};
+  const { time } = useGameSession();
 
   const { correct, total } = useMemo(() => {
-    const list = moves ?? [];
+    const list = (moves ?? []).slice(0, -1);
 
     return {
-      correct: list.filter((m) => m.isCorrect).length,
+      correct: list.filter((m) => m.isCorrect === true).length,
       total: list.length,
     };
   }, [moves]);
@@ -29,7 +26,7 @@ export const ScorePanel: FC<Props> = ({ timeRemaining }) => {
       </div>
 
       <div className="flex items-center justify-center h-[150px] w-full">
-        <Timer timeRemaining={timeRemaining} />
+        <Timer timeRemaining={time} />
       </div>
 
       <MoveDetailsGrid moves={moves ?? []} />

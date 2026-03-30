@@ -1,5 +1,3 @@
-export * from './Board';
-
 export * from './ScorePanel';
 
 export * from './Navbar';
