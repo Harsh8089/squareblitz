@@ -1,7 +1,7 @@
-import { GameState, GameStats } from '@repo/types/game';
+import { GameState, GameStats, Move } from '@repo/types/game';
 
 export const prepareGameStats = (
-  gameState?: GameState,
+  gameState: GameState | null,
 ): GameStats | undefined => {
   if (!gameState) {
     return;
@@ -16,7 +16,13 @@ export const prepareGameStats = (
   let accuracy = 0;
   let mpm = 0;
 
-  const moves = gameState.moves?.map((move, index) => {
+  const moves: Move[] = [];
+
+  for (const move of gameState.moves ?? []) {
+    if (!move.clickedSquare) {
+      break;
+    }
+
     const timeTaken = +((move.timeTaken ?? 0) / 1000).toFixed(2);
 
     avgTimeTaken += timeTaken;
@@ -30,8 +36,8 @@ export const prepareGameStats = (
       lcStreak = 0;
     }
 
-    return { ...move, id: index, timeTaken };
-  });
+    moves.push({ ...move, timeTaken });
+  }
 
   const totalMoves = moves?.length ?? 0;
   const correctCount = moves?.filter((m) => m.isCorrect).length ?? 0;
@@ -44,7 +50,7 @@ export const prepareGameStats = (
 
   return {
     id: gameState.id,
-    moves: moves ?? [],
+    moves: moves,
     accuracy,
     mpm,
     avgTimeTaken,

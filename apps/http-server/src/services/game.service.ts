@@ -27,6 +27,9 @@ export class GameService {
   // one to one mapping (username -> game)
   private games: Map<string, GameState> = new Map();
 
+  // TODO: remove once db implementation is done
+  private prevGame: GameState | null = null;
+
   private constructor() {}
 
   static getInstance(): GameService {
@@ -150,6 +153,7 @@ export class GameService {
     } as Square;
 
     game.moves?.push({
+      id: game.moves.length,
       targetSquare: target,
       timeStamp: Date.now(),
     });
@@ -239,7 +243,9 @@ export class GameService {
 
     // TODO
     // this.save(username, game)
-    // this.delete(username);
+
+    this.prevGame = game;
+    this.delete(username);
 
     return ResponseService.success<GameState>(
       res,
@@ -250,25 +256,18 @@ export class GameService {
   };
 
   stats = (req: Request, res: Response) => {
-    const username = req.user;
     const { id } = req.params;
 
     // TODO: get game details from db
     // const game = await prisma.games.findOne({ id })
 
-    if (!username) {
-      throw new UnauthorizedError();
-    }
-
-    const game = this.get(username);
-    const gameStats = prepareGameStats(game);
+    const gameStats = prepareGameStats(this.prevGame);
 
     if (!gameStats) {
       throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
     }
 
-    // TODO: remove below code
-    this.delete(username);
+    this.prevGame = null;
 
     return ResponseService.success<GameStats>(res, 200, gameStats, '');
   };

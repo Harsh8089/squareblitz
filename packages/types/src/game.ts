@@ -22,6 +22,7 @@ export type GameSettings = {
 };
 
 export type Move = {
+  id?: number;
   targetSquare?: Square;
   clickedSquare?: Square;
   isCorrect?: boolean;
