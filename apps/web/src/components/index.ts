@@ -1,5 +1,3 @@
-export * from './ScorePanel';
-
 export * from './Navbar';
 
 export * from './UsernameInput';

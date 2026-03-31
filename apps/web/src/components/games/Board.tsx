@@ -1,11 +1,10 @@
 import { useEnd, useSend, useVerify } from '../../hooks/useGameMutations';
-import { FC, memo, useEffect, useMemo } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo } from 'react';
+import { useGame, useGameSession } from '../../contexts';
 import { Board as BoardUI } from '@repo/ui/board';
-import { mapSizeToPx, URL } from '../../utils';
 import { GameStatus } from '@repo/types/game';
 import { Square } from '@repo/types/square';
-import { Navigate } from 'react-router-dom';
-import { useGame } from '../../contexts';
+import { mapSizeToPx } from '../../utils';
 
 export const Board: FC = memo(() => {
   const { mutate: send } = useSend();
@@ -13,20 +12,12 @@ export const Board: FC = memo(() => {
   const { mutateAsync: end } = useEnd();
 
   const { gameState } = useGame();
+  const { size, isRunning } = useGameSession();
 
-  const { filter, moves } = gameState ?? {};
-
-  const { size, mode, timer } = filter ?? {};
+  const { moves } = gameState ?? {};
   const currentTarget = moves?.at(-1)?.targetSquare;
 
-  if (!size || !mode || !timer) {
-    return <Navigate to={`/${URL.SETUP}`} />;
-  }
-
-  const handleSquareClick = async (square: Square) => {
-    await verify(square);
-    send();
-  };
+  const squareSizePx = useMemo(() => mapSizeToPx(size), [size]);
 
   useEffect(() => {
     send();
@@ -36,10 +27,20 @@ export const Board: FC = memo(() => {
     };
   }, []);
 
-  const squareSizePx = useMemo(() => mapSizeToPx(size), [size]);
+  const handleSquareClick = useCallback(
+    async (square: Square) => {
+      if (isRunning) {
+        await verify(square);
+        send();
+      } else {
+        // TODO: show toaster saying "you have paused the game"
+      }
+    },
+    [verify, send, isRunning],
+  );
 
   if (!currentTarget) {
-    return;
+    return null;
   }
 
   return (

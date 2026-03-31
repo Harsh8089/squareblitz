@@ -19,6 +19,14 @@
   --color-glass-gull-gray-1: #7f949e;
   --color-glass-gull-gray-2: #c9d7de;
 
+  --color-correct-1: #4a6741;
+  --color-correct-2: #8fad7f;
+  --color-correct-3: #d4e6c3;
+
+  --color-wrong-1: #6b3535;
+  --color-wrong-2: #b87070;
+  --color-wrong-3: #f0d4d4;
+
   /* Spacing */
   --spacing-board-gap: 1.5rem;
 
