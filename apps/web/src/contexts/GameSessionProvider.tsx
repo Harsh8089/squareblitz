@@ -7,7 +7,7 @@ import {
   useMemo,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BoardSize, Timer } from '@repo/types/game';
+import { GameSettings } from '@repo/types/game';
 import { useGame } from './GameProvider';
 import { useTimer } from '../hooks';
 import { URL } from '../utils';
@@ -17,8 +17,7 @@ type Prop = {
 };
 
 interface GameSessionContextValue {
-  size: BoardSize;
-  timer: Timer;
+  filter: GameSettings;
   time: number;
   pause: () => void;
   reset: () => void;
@@ -30,17 +29,16 @@ interface GameSessionContextValue {
 const GameSessionContext = createContext<GameSessionContextValue | null>(null);
 
 export const GameSessionProvider: FC<Prop> = ({ children }) => {
-  const location = useLocation();
   const navigate = useNavigate();
-
   const { gameState } = useGame();
 
-  const { size, timer } = gameState?.filter ?? {};
+  const { size, mode, timer } = gameState?.filter ?? {};
 
   const timerDuration = useMemo(() => parseInt(timer ?? '0', 10), [timer]);
+
   const { time, pause, reset, resume, isRunning } = useTimer(timerDuration);
 
-  const isValidSession = Boolean(size && timer && location.state?.autoStart);
+  const isValidSession = !!(size && mode && timer);
   const isTimeUp = isValidSession && !time;
 
   useEffect(() => {
@@ -57,8 +55,7 @@ export const GameSessionProvider: FC<Prop> = ({ children }) => {
 
   const value = useMemo(
     () => ({
-      size: size as BoardSize,
-      timer: timer as Timer,
+      filter: gameState?.filter ?? {},
       time,
       pause,
       reset,
@@ -66,7 +63,7 @@ export const GameSessionProvider: FC<Prop> = ({ children }) => {
       isRunning,
       gameId: gameState?.id ?? '',
     }),
-    [size, timer, time, pause, reset, resume, isRunning, gameState?.id],
+    [gameState?.filter, time, pause, reset, resume, isRunning, gameState?.id],
   );
 
   if (!isValidSession || isTimeUp) {

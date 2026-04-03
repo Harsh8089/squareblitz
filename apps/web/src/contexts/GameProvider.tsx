@@ -14,12 +14,23 @@ type Prop = {
 };
 
 type GameContextType = {
-  gameState: GameState | null;
+  gameState: GameState;
   setGameState: Dispatch<SetStateAction<GameState>>;
 };
 
+export const DEFAULT_GAME_STATE: GameState = {
+  id: null,
+  status: null,
+  filter: {
+    size: 4 as BoardSize,
+    mode: GameMode.BLIND,
+    timer: '15',
+  },
+  moves: [],
+};
+
 const GameContext = createContext<GameContextType>({
-  gameState: null,
+  gameState: DEFAULT_GAME_STATE,
   setGameState: () => {},
 });
 
@@ -46,14 +57,4 @@ export const useGame = () => {
   }
 
   return context;
-};
-
-export const DEFAULT_GAME_STATE: GameState = {
-  id: null,
-  status: null,
-  filter: {
-    size: 4 as BoardSize,
-    mode: GameMode.BLIND,
-    timer: '15',
-  },
 };

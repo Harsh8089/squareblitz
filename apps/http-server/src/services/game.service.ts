@@ -69,31 +69,56 @@ export class GameService {
     } catch (error) {}
   };
 
-  start = (req: Request, res: Response) => {
+  private getUsername(req: Request): string {
     const username = req.user;
     if (!username) {
       throw new UnauthorizedError();
     }
 
-    const { size, mode, timer } = req.query || {};
+    return username;
+  }
+
+  private getGameOrThrow(username: string): GameState {
+    const game = this.get(username);
+    if (!game) {
+      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
+    }
+    return game;
+  }
+
+  private parseFilter(query: any) {
+    const { size, mode, timer } = query || {};
 
     if (!size || !mode || !timer) {
       throw new NotFoundError(RESPONSE_MESSAGE.MISSING_GAME_STATE);
     }
 
-    let game = this.get(username);
-
-    if (!game) {
-      game = this.set(username);
-    }
-
-    game.filter = {
+    return {
       size: Number(size) as BoardSize,
       mode: mode as GameMode,
       timer: timer as Timer,
     };
+  }
 
-    return ResponseService.success<GameState>(
+  private getTarget(size: BoardSize): Square {
+    const file = String.fromCharCode(97 + Math.floor(Math.random() * size));
+    const rank = Math.floor(Math.random() * size) + 1;
+
+    return { file, rank } as Square;
+  }
+
+  start = (req: Request, res: Response) => {
+    const username = this.getUsername(req);
+    const filter = this.parseFilter(req.query);
+
+    let game = this.get(username);
+    if (!game) {
+      game = this.set(username);
+    }
+
+    game.filter = filter;
+
+    return ResponseService.success<GameData>(
       res,
       200,
       {
@@ -102,23 +127,16 @@ export class GameService {
         startedAt: game.startedAt,
         filter: game.filter,
       },
-      'Game initiated',
+      RESPONSE_MESSAGE.GAME_INITIATED,
     );
   };
 
   send = (req: Request, res: Response) => {
-    const username = req.user;
-    if (!username) {
-      throw new UnauthorizedError();
-    }
+    const username = this.getUsername(req);
+    const game = this.getGameOrThrow(username);
 
-    const game = this.get(username);
-    if (!game) {
-      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
-    }
-
-    const { size, timer } = game.filter ?? {};
-    if (!size || !timer) {
+    const { size } = game.filter ?? {};
+    if (!size) {
       throw new NotFoundError(RESPONSE_MESSAGE.MISSING_GAME_STATE);
     }
 
@@ -135,26 +153,11 @@ export class GameService {
     //   );
     // }
 
-    // TODO: Need to sync with FE timer. Right now BE time is slightly ahead of FE
-    const now = Date.now();
-    if (now >= game.startedAt! + Number(timer) * 1000) {
-      // TODO: save game state in db
-      // await this.save(username, game);
-
-      this.delete(username);
-
-      throw new AppError(RESPONSE_MESSAGE.TIMES_UP, 403);
-    }
-
-    const idx = Math.floor(Math.random() * size);
-    const target = {
-      file: ROWS[idx],
-      rank: idx + 1,
-    } as Square;
+    const targetSquare = this.getTarget(size);
 
     game.moves?.push({
       id: game.moves.length,
-      targetSquare: target,
+      targetSquare,
       timeStamp: Date.now(),
     });
 
@@ -171,15 +174,8 @@ export class GameService {
   };
 
   verify = (req: Request, res: Response) => {
-    const username = req.user;
-    if (!username) {
-      throw new UnauthorizedError();
-    }
-
-    const game = this.get(username);
-    if (!game) {
-      throw new NotFoundError(RESPONSE_MESSAGE.NO_GAME_STATE_FOUND);
-    }
+    const username = this.getUsername(req);
+    const game = this.getGameOrThrow(username);
 
     const clickedSquare = req.body.target as Square;
 
@@ -255,6 +251,36 @@ export class GameService {
     );
   };
 
+  reset = (req: Request, res: Response) => {
+    const username = this.getUsername(req);
+    const game = this.getGameOrThrow(username);
+
+    const { size } = game.filter ?? {};
+    if (!size) {
+      throw new NotFoundError(RESPONSE_MESSAGE.MISSING_GAME_STATE);
+    }
+
+    const targetSquare = this.getTarget(size);
+    const move = {
+      id: 0,
+      targetSquare,
+      timeStamp: Date.now(),
+    };
+    game.moves = [move];
+
+    return ResponseService.success<GameData>(
+      res,
+      200,
+      {
+        id: game.id,
+        status: GameStatus.ACTIVE,
+        startedAt: Date.now(),
+        moves: game.moves,
+      },
+      RESPONSE_MESSAGE.GAME_RESET,
+    );
+  };
+
   stats = (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -284,22 +310,17 @@ export class GameService {
   }
 }
 
-const MAX_ROW_LENGTH = 10;
-
-const ROWS = Array.from({ length: MAX_ROW_LENGTH }, (_, r) =>
-  String.fromCharCode(r + 97),
-);
-
 const THIRTY_MINUTES = 30 * 60 * 1000;
 
 const enum RESPONSE_MESSAGE {
+  GAME_INITIATED = 'Game started successfully',
   MISSING_GAME_STATE = 'Missing some game state',
   NO_GAME_STATE_FOUND = 'No game state found',
   GAME_NOT_ACTIVE = 'Game not active',
-  TIMES_UP = 'Times up!',
-  CORRECT_SQUARE = 'Correct sqaure',
+  CORRECT_SQUARE = 'Correct square',
   INCORRECT_SQUARE = 'Incorrect square',
   TARGET_ERROR = 'Missing target or previous target not set',
   GAME_DELETED = 'Game deleted',
   SQUARE_ALREADY_AWAITING_VERIFICATION = 'A square is already awaiting verification',
+  GAME_RESET = 'Game has been reset',
 }

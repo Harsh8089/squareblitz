@@ -27,17 +27,10 @@ export const useStart = () => {
         startedAt,
       });
 
-      navigate(
-        {
-          pathname: `/${URL.GAME}/${URL.PLAY}`,
-          search: createSearchParams({ id }).toString(),
-        },
-        {
-          state: {
-            autoStart: true,
-          },
-        },
-      );
+      navigate({
+        pathname: `/${URL.GAME}/${URL.PLAY}`,
+        search: createSearchParams({ id }).toString(),
+      });
     },
     onError: (error) => {
       // Access token expiry error
@@ -94,6 +87,34 @@ export const useEnd = () => {
     },
     onError: (error) => {
       console.error('Game end failed ' + error);
+    },
+  });
+};
+
+export const useReset = () => {
+  const { setGameState } = useGame();
+
+  return useMutation({
+    mutationFn: gameService.reset,
+    onSuccess: (response) => {
+      const { id, status, startedAt, moves } = response.data!;
+
+      if (!id) {
+        console.error('No game ID returned');
+
+        return;
+      }
+
+      setGameState((prev) => ({
+        ...prev,
+        id,
+        status,
+        startedAt,
+        moves,
+      }));
+    },
+    onError: () => {
+      console.error('Reset post call failed');
     },
   });
 };

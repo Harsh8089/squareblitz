@@ -11,11 +11,11 @@ export const Board: FC = memo(() => {
   const { mutateAsync: verify } = useVerify();
   const { mutateAsync: end } = useEnd();
 
-  const { gameState } = useGame();
-  const { size, isRunning } = useGameSession();
+  const { moves } = useGame().gameState;
+  const { filter, isRunning } = useGameSession();
 
-  const { moves } = gameState ?? {};
   const currentTarget = moves?.at(-1)?.targetSquare;
+  const size = filter?.size!;
 
   const squareSizePx = useMemo(() => mapSizeToPx(size), [size]);
 
@@ -39,7 +39,7 @@ export const Board: FC = memo(() => {
     [verify, send, isRunning],
   );
 
-  if (!currentTarget) {
+  if (!currentTarget || !size) {
     return null;
   }
 

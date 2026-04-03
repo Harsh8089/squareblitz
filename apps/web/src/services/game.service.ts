@@ -34,6 +34,9 @@ export const gameService = {
   end: async (status: GameStatus): GameResponse => {
     return (await api.post('/game/end', { status })).data;
   },
+  reset: async (settings: Required<GameSettings>): GameResponse => {
+    return (await api.post('/game/reset', settings)).data;
+  },
   stats: async (id: string): Promise<Response<GameStats>> => {
     return (await api.get(`/game/stats/${id}`)).data;
   },

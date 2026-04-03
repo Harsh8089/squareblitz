@@ -11,5 +11,6 @@ router.get('/send', authenticateToken, gameService.send);
 router.get('/stats/:id', authenticateToken, gameService.stats);
 router.post('/verify', authenticateToken, gameService.verify);
 router.post('/end', authenticateToken, gameService.end);
+router.post('/reset', authenticateToken, gameService.reset);
 
 export default router;

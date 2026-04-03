@@ -3,7 +3,12 @@ import { useGameSession } from '../../contexts';
 import { FC } from 'react';
 
 export const TimerBar: FC = () => {
-  const { time, timer, size } = useGameSession();
+  const { time, filter } = useGameSession();
 
-  return <TimerBarUI timeRemaining={time} timer={timer} size={size} />;
+  return (
+    <TimerBarUI
+      timeRemaining={time}
+      filter={filter}
+    />
+  );
 };
